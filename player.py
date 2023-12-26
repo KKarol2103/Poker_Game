@@ -51,4 +51,6 @@ class Player:
 
 
 class AIPlayer(Player):
-    pass
+
+    def decide_what_to_do(self):
+        pass

@@ -3,7 +3,9 @@ from deck import Deck
 from player import Player, AIPlayer
 from game import Game
 import copy
+import random
 import pytest
+
 
 
 def test_create_a_basic_card():
@@ -46,14 +48,16 @@ def test_incorrect_round_name():
         new_game.get_current_round_name()
 
 
-def mock_sample(start, end):
-    return start
+def mock_random_sample(range, k):
+    return [4, 1, 3, 2]
 
 
-def test_draw_the_order_of_players():
+def test_draw_the_order_of_players(monkeypatch):
     new_game = Game()
     new_game.players_in_game = [Player(), AIPlayer(), AIPlayer(), AIPlayer()]
+    monkeypatch.setattr(random, "sample", mock_random_sample)
     new_game.draw_the_order_of_players()
+
     expected_order = [1, 2, 3, 4]
-    # monkeypatch.setattr("random.randint", mock_sample)
-    actual_order = [player.player_num for player in new_game._players_in_game]
+    actual_order = [player.player_num for player in new_game.players_in_game]
+    assert actual_order == expected_order

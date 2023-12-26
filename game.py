@@ -67,7 +67,7 @@ class Game:
 
 def main():
     my_new_game = Game()
-    my_new_game.play()
+    my_new_game.draw_the_order_of_players()
 
 
 if __name__ == "__main__":
