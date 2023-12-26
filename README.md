@@ -11,6 +11,7 @@ W mojej realizacji projektu postanowiłem położyć duży nacisk na programowan
 ## Wstępne opisy klas używanych w projekcie: 
 
 1. **`Game`**
+- Odpowiada za logikę gry, zarządza rundami, kolejnością graczy, oraz ogólnym wynikiem gry. 
 - Zawiera Interface za pomocą którego gracz będzie komunikował się z Grą. Będzie zawierać podstawowe metody typu: "play", "quit".
 2. **`Player`**
 - Jest podstawową reprezentacją gracza:
