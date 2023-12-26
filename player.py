@@ -1,17 +1,17 @@
 class Player:
-    def __init__(self, id: int, name: str, money: int) -> None:
-        self._id = id
+    def __init__(self, player_num: int, name: str, chips: int) -> None:
+        self._player_num = player_num
         self._name = name
-        self._money = money
+        self._chips = chips
         self._player_cards = []
 
     @property
-    def id(self):
-        return self._id
+    def player_num(self):
+        return self._player_num
 
-    @id.setter
-    def id(self, value):
-        self._id = value
+    @player_num.setter
+    def player_num(self, value):
+        self._player_num = value
 
     @property
     def name(self):
@@ -22,12 +22,12 @@ class Player:
         self._name = value
 
     @property
-    def money(self):
-        return self._money
+    def chips(self):
+        return self._chips
 
-    @money.setter
-    def money(self, value):
-        self._money = value
+    @chips.setter
+    def chips(self, value):
+        self._chips = value
 
     @property
     def player_cards(self):
@@ -48,3 +48,7 @@ class Player:
 
     def check(self):
         pass
+
+
+class AIPlayer(Player):
+    pass

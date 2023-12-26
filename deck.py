@@ -17,8 +17,8 @@ class Deck:
             for color in Color:
                 self._cards_in_game.append(Card(value, color))
 
-    def tass_cards(self) -> Card:
-        pass
+    def tass_cards(self) -> None:
+        shuffle(self._cards_in_game)
 
     def check_player_hand(self, player: Player) -> int:
         pass
