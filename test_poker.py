@@ -1,5 +1,6 @@
 from card import Card, Color, Value
 from deck import Deck
+from player import Player, AIPlayer
 from game import Game
 import copy
 import pytest
@@ -43,3 +44,16 @@ def test_incorrect_round_name():
     new_game.round = 6
     with pytest.raises(ValueError):
         new_game.get_current_round_name()
+
+
+def mock_sample(start, end):
+    return start
+
+
+def test_draw_the_order_of_players():
+    new_game = Game()
+    new_game.players_in_game = [Player(), AIPlayer(), AIPlayer(), AIPlayer()]
+    new_game.draw_the_order_of_players()
+    expected_order = [1, 2, 3, 4]
+    # monkeypatch.setattr("random.randint", mock_sample)
+    actual_order = [player.player_num for player in new_game._players_in_game]

@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, player_num: int, name: str, chips: int) -> None:
+    def __init__(self, player_num: int = None, name: str = "", chips: int = 0) -> None:
         self._player_num = player_num
         self._name = name
         self._chips = chips

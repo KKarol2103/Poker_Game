@@ -1,5 +1,5 @@
 from player import Player
-from random import shuffle
+import random
 from card import Card, Color, Value
 from typing import List
 
@@ -18,7 +18,7 @@ class Deck:
                 self._cards_in_game.append(Card(value, color))
 
     def tass_cards(self) -> None:
-        shuffle(self._cards_in_game)
+        random.shuffle(self._cards_in_game)
 
     def check_player_hand(self, player: Player) -> int:
         pass
