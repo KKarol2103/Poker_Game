@@ -1,11 +1,11 @@
 from card import Card, Color, Value
+from table import Table
 from deck import Deck
 from player import Player, AIPlayer
 from game import Game
 import copy
 import random
 import pytest
-
 
 
 def test_create_a_basic_card():
@@ -15,7 +15,6 @@ def test_create_a_basic_card():
 
 def test_init_cards_used_in_game():
     play_deck = Deck()
-    play_deck.init_cards_used_in_a_game()
     colors_in_game_count = {}
     for card in play_deck.cards_in_game:
         colors_in_game_count[card.color.name] = colors_in_game_count.get(card.color.name, 0) + 1
@@ -28,7 +27,6 @@ def test_init_cards_used_in_game():
 
 def test_shuffle_cards():
     play_deck = Deck()
-    play_deck.init_cards_used_in_a_game()
     before_shuffle = copy.copy(play_deck.cards_in_game)
     play_deck.tass_cards()
     after = play_deck.cards_in_game
@@ -61,3 +59,11 @@ def test_draw_the_order_of_players(monkeypatch):
     expected_order = [1, 2, 3, 4]
     actual_order = [player.player_num for player in new_game.players_in_game]
     assert actual_order == expected_order
+
+
+def test_draw_hole_cards():
+    deck = Deck()
+    new_player = Player()
+    new_player.hole_cards = deck.draw_player_hole_cards()
+    assert len(deck.cards_in_game) == 50
+

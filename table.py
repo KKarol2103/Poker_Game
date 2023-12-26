@@ -1,8 +1,10 @@
+from typing import List
+from card import Card
 
 
 class Table:
     def __init__(self) -> None:
-        self._community_cards = []
+        self._community_cards: List[Card] = []
         self._stake = 0
 
     @property
@@ -20,4 +22,3 @@ class Table:
     @stake.setter
     def stake(self, value):
         self._stake = value
-

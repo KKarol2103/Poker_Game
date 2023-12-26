@@ -1,12 +1,14 @@
 from player import Player, AIPlayer
+from table import Table
 from typing import List, Tuple
 import random
 
 
 class Game:
     def __init__(self) -> None:
-        self._players_in_game = []
-        self._round = 1
+        self._players_in_game: List[Player] = []
+        self._game_table = Table()
+        self._round: int = 1
 
     @property
     def players_in_game(self) -> List[Player]:
@@ -49,6 +51,10 @@ class Game:
 
         self._players_in_game.sort(key=lambda player: player.player_num)
 
+    def get_winner(self) -> Player:
+        for player in self._players_in_game:
+            pass
+
     def play(self):
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
@@ -62,7 +68,12 @@ class Game:
 
         for _ in range(4):
             print(f'Round: {self.get_current_round_name():^30}')
+            print("Now it is time for everyone to decide what to do!")
+            print("We will start with: ...")
             self._round += 1
+
+        print("Time to showdown!")
+
 
 
 def main():

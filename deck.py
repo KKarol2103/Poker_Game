@@ -1,25 +1,38 @@
 from player import Player
+from table import Table
 import random
 from card import Card, Color, Value
-from typing import List
+from typing import Tuple, List
 
 
 class Deck:
     def __init__(self) -> None:
-        self._cards_in_game = []
+        self._cards_in_game: List[Card] = self.init_cards_used_in_a_game()
 
     @property
     def cards_in_game(self) -> List[Card]:
         return self._cards_in_game
 
-    def init_cards_used_in_a_game(self) -> None:
+    def init_cards_used_in_a_game(self) -> List[Card]:
+        new_deck = []
         for value in Value:
             for color in Color:
-                self._cards_in_game.append(Card(value, color))
+                new_deck.append(Card(value, color))
+        return new_deck
 
     def tass_cards(self) -> None:
         # TODO change this method later
         random.shuffle(self._cards_in_game)
 
-    def check_player_hand(self, player: Player) -> int:
-        pass
+    def draw_player_hole_cards(self) -> List[Card]:
+        hole_cards = random.sample(self._cards_in_game, 2)
+        self._cards_in_game = [card for card in self._cards_in_game if card not in hole_cards]
+        return hole_cards
+
+    def put_cards_on_the_table(self, current_round: int, game_table: Table) -> None:
+        if current_round == 2:
+            pass
+        if current_round == 3:
+            pass
+        if current_round == 4:
+            pass

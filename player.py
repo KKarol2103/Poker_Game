@@ -3,7 +3,7 @@ class Player:
         self._player_num = player_num
         self._name = name
         self._chips = chips
-        self._player_cards = []
+        self._hole_cards = []
 
     @property
     def player_num(self):
@@ -30,12 +30,14 @@ class Player:
         self._chips = value
 
     @property
-    def player_cards(self):
-        return self._player_cards
+    def hole_cards(self):
+        return self._hole_cards
 
-    @player_cards.setter
-    def player_cards(self, value):
-        self._player_cards = value
+    @hole_cards.setter
+    def hole_cards(self, value):
+        # if self._hole_cards:
+        #     raise ValueError
+        self._hole_cards = value
 
     def fold(self):
         pass
