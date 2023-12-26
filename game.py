@@ -49,7 +49,6 @@ class Game:
 
         self._players_in_game.sort(key=lambda player: player.player_num)
 
-
     def play(self):
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
@@ -61,13 +60,14 @@ class Game:
         for i in range(int(no_opponents)):
             self._players_in_game.append(AIPlayer(i, f"random{i}", 10000))
 
-        while (True):
+        for _ in range(4):
             print(f'Round: {self.get_current_round_name():^30}')
+            self._round += 1
 
 
 def main():
     my_new_game = Game()
-    my_new_game.draw_the_order_of_players()
+    my_new_game.play()
 
 
 if __name__ == "__main__":

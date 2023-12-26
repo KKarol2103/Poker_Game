@@ -18,6 +18,7 @@ class Deck:
                 self._cards_in_game.append(Card(value, color))
 
     def tass_cards(self) -> None:
+        # TODO change this method later
         random.shuffle(self._cards_in_game)
 
     def check_player_hand(self, player: Player) -> int:
