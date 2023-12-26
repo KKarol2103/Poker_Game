@@ -1,5 +1,6 @@
 from player import Player
-from Card import Card, Color, Value
+from random import shuffle
+from card import Card, Color, Value
 from typing import List
 
 
@@ -11,12 +12,12 @@ class Deck:
     def cards_in_game(self) -> List[Card]:
         return self._cards_in_game
 
-    def init_cards_used_in_a_game(self):
+    def init_cards_used_in_a_game(self) -> None:
         for value in Value:
             for color in Color:
-                self._cards_in_game.append(Card(value.name, color.name))
+                self._cards_in_game.append(Card(value, color))
 
-    def tass_cards(self):
+    def tass_cards(self) -> Card:
         pass
 
     def check_player_hand(self, player: Player) -> int:
