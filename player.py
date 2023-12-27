@@ -88,6 +88,9 @@ class Player:
         if 3 in cards_values_dict.values() and 2 in cards_values_dict.values():
             player_points.append(6)
 
+        if list(cards_values_dict.values()).count(2) == 2:
+            player_points.append(2)
+
         if is_straight and same_colors:
             player_points.append(9)
 
