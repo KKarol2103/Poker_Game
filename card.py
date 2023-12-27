@@ -41,6 +41,15 @@ class Card:
     def value(self) -> Value:
         return self._value
 
+    def __lt__(self, other):
+        return self._value.number < other.value.number
+
+    def __gt__(self, other):
+        return self._value.number > other.value.number
+
+    # def __eq__(self, other) -> bool:
+    #     return self._value.number == other.value.number
+
     def __repr__(self):
         return f"{self._value.name} of {self._color.name}"
 

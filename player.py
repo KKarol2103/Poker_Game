@@ -1,4 +1,6 @@
 from table import Table
+from card import Card, Color, Value
+from typing import List, Tuple
 
 
 class Player:
@@ -42,27 +44,52 @@ class Player:
             raise ValueError
         self._hole_cards = value
 
+    def check_if_there_is_a_straight(self, all_cards: List[Tuple[Color, Value]]) -> bool:
+        for i in range(len(all_cards) - 4):
+            straight = True
+            for j in range(4):
+                # TODO refactor it later
+                if all_cards[i + j][1].value[0] + 1 != all_cards[i + j + 1][1].value[0]:
+                    straight = False
+                    break
+
+        return straight
+
     def compute_player_score(self, game_table: Table) -> int:
         player_and_community_cards = self._hole_cards + game_table.community_cards
+
+        player_points = []
+        same_colors = False
         cards_values_dict = {}
         card_colors_dict = {}
-        all_cards_values_dict = [(card.color, card.value) for card in player_and_community_cards]
-        player_points = []
-        for color, value in all_cards_values_dict:
+
+        all_cards_values = [(card.color, card.value) for card in player_and_community_cards]
+        all_cards_values.sort(key=lambda card_tup: card_tup[1].number)
+
+        is_straight = self.check_if_there_is_a_straight(all_cards_values)
+        if is_straight:
+            player_points.append(4)
+
+        for color, value in all_cards_values:
             cards_values_dict[value] = cards_values_dict.get(value, 0) + 1
             card_colors_dict[color] = card_colors_dict.get(color, 0) + 1
 
-        if max(cards_values_dict.values()) == 2:
+        most_common_card_value = max(cards_values_dict.values())
+        if most_common_card_value == 2:
             player_points.append(1)
-        if max(cards_values_dict.values()) == 3:
+        if most_common_card_value == 3:
             player_points.append(3)
-        if max(cards_values_dict.values()) == 4:
-            player_points.append(4)
+        if most_common_card_value == 4:
+            player_points.append(7)
 
         if max(card_colors_dict.values()) == 5:
+            same_colors = True
             player_points.append(5)
         if 3 in cards_values_dict.values() and 2 in cards_values_dict.values():
             player_points.append(6)
+
+        if is_straight and same_colors:
+            player_points.append(9)
 
         if not player_points:
             return 0

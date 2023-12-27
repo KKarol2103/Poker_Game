@@ -9,8 +9,20 @@ import pytest
 
 
 def test_create_a_basic_card():
-    my_card = Card(Value.ACE, Color.SPADES,)
+    my_card = Card(Value.ACE, Color.SPADES)
     assert my_card.__repr__() == "ACE of SPADES"
+
+
+def test_compare_two_cards():
+    my_card = Card(Value.TWO, Color.SPADES)
+    my_sec_card = Card(Value.FIVE, Color.SPADES)
+    assert my_card < my_sec_card
+
+
+def test_compare_two_cards_gt():
+    my_card = Card(Value.QUEEN, Color.SPADES)
+    my_sec_card = Card(Value.JACK, Color.SPADES)
+    assert my_card > my_sec_card
 
 
 def test_init_cards_used_in_game():
@@ -120,6 +132,7 @@ def test_compute_player_score_high_card():
                                   Card(Value.TEN, Color.CLUBS)]
     player.compute_player_score(game_table) == 0
 
+
 def test_compute_player_score_pair():
     player = Player()
     game_table = Table()
@@ -177,7 +190,7 @@ def test_compute_player_score_four_of_a_kind():
                                   Card(Value.EIGHT, Color.SPADES),
                                   Card(Value.JACK, Color.HEARTS),
                                   Card(Value.NINE, Color.CLUBS)]
-    assert player.compute_player_score(game_table) == 4
+    assert player.compute_player_score(game_table) == 7
 
 
 def test_compute_player_score_full_house():
@@ -192,6 +205,18 @@ def test_compute_player_score_full_house():
     assert player.compute_player_score(game_table) == 6
 
 
+def test_compute_player_score_straight():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.FIVE, Color.HEARTS), Card(Value.SIX, Color.CLUBS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.DIAMONDS),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.NINE, Color.HEARTS),
+                                  Card(Value.TWO, Color.CLUBS),
+                                  Card(Value.THREE, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 4
+
+
 def test_compute_player_score_straight_flush():
     player = Player()
     game_table = Table()
@@ -201,4 +226,4 @@ def test_compute_player_score_straight_flush():
                                   Card(Value.FIVE, Color.HEARTS),
                                   Card(Value.THREE, Color.SPADES),
                                   Card(Value.TWO, Color.DIAMONDS)]
-    assert player.compute_player_score(game_table) == 8
+    assert player.compute_player_score(game_table) == 9
