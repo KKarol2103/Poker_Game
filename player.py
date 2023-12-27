@@ -51,6 +51,7 @@ class Player:
         for color, value in all_cards_values_dict:
             cards_values_dict[value] = cards_values_dict.get(value, 0) + 1
             card_colors_dict[color] = card_colors_dict.get(color, 0) + 1
+
         if max(cards_values_dict.values()) == 2:
             player_points.append(1)
         if max(cards_values_dict.values()) == 3:
@@ -60,6 +61,11 @@ class Player:
 
         if max(card_colors_dict.values()) == 5:
             player_points.append(5)
+        if 3 in cards_values_dict.values() and 2 in cards_values_dict.values():
+            player_points.append(6)
+
+        if not player_points:
+            return 0
 
         return max(player_points)
 
