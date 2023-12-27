@@ -81,7 +81,6 @@ class Game:
         # winner = self.get_winner()
 
 
-
 def main():
     my_new_game = Game()
     my_new_game.play()

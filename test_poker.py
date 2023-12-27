@@ -107,3 +107,63 @@ def test_print_table():
     new_card = Card(Value.SEVEN, Color.DIAMONDS)
     game_deck.put_cards_on_the_table(2, game_table)
     print(game_deck)
+
+
+def test_compute_player_score_pair():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.QUEEN, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.HEARTS),
+                                  Card(Value.KING, Color.DIAMONDS),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    player.compute_player_score(game_table) == 1
+
+
+def test_compute_player_score_double_pair():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.QUEEN, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.HEARTS),
+                                  Card(Value.QUEEN, Color.DIAMONDS),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    assert player.compute_player_score(game_table) == 2
+
+
+def test_compute_player_score_three_of_a_kind():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.SEVEN, Color.CLUBS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.HEARTS),
+                                  Card(Value.KING, Color.DIAMONDS),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    assert player.compute_player_score(game_table) == 3
+
+
+def test_compute_player_score_flush():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.TWO, Color.HEARTS), Card(Value.FIVE, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.HEARTS),
+                                  Card(Value.KING, Color.HEARTS),
+                                  Card(Value.EIGHT, Color.HEARTS),
+                                  Card(Value.JACK, Color.DIAMONDS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    assert player.compute_player_score(game_table) == 5  # Zakładając, że kolor to 5 punktów
+
+
+def test_compute_player_score_four_of_a_kind():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.SEVEN, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.CLUBS),
+                                  Card(Value.SEVEN, Color.SPADES),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    assert player.compute_player_score(game_table) == 4  # Zakładając, że kareta to 4 punkty

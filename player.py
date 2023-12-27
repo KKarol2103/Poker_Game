@@ -1,3 +1,6 @@
+from table import Table
+
+
 class Player:
     def __init__(self, player_num: int = None, name: str = "", chips: int = 0) -> None:
         self._player_num = player_num
@@ -39,8 +42,26 @@ class Player:
             raise ValueError
         self._hole_cards = value
 
-    def compute_player_score(self):
-        pass
+    def compute_player_score(self, game_table: Table) -> int:
+        player_and_community_cards = self._hole_cards + game_table.community_cards
+        cards_values_dict = {}
+        card_colors_dict = {}
+        all_cards_values_dict = [(card.color, card.value) for card in player_and_community_cards]
+        player_points = []
+        for color, value in all_cards_values_dict:
+            cards_values_dict[value] = cards_values_dict.get(value, 0) + 1
+            card_colors_dict[color] = card_colors_dict.get(color, 0) + 1
+        if max(cards_values_dict.values()) == 2:
+            player_points.append(1)
+        if max(cards_values_dict.values()) == 3:
+            player_points.append(3)
+        if max(cards_values_dict.values()) == 4:
+            player_points.append(4)
+
+        if max(card_colors_dict.values()) == 5:
+            player_points.append(5)
+
+        return max(player_points)
 
     def fold(self):
         pass
