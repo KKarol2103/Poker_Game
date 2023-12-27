@@ -43,3 +43,6 @@ class Card:
 
     def __repr__(self):
         return f"{self._value.name} of {self._color.name}"
+
+    def __str__(self) -> str:
+        return f"{self._value.name} of {self._color.name}"

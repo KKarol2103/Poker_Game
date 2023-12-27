@@ -22,3 +22,10 @@ class Table:
     @stake.setter
     def stake(self, value):
         self._stake = value
+
+    def __str__(self) -> str:
+        text = "Cards on the table:"
+        for card in self._community_cards:
+            text += card.__str__()
+            text += "\n"
+        return text

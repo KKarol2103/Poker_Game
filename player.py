@@ -35,9 +35,12 @@ class Player:
 
     @hole_cards.setter
     def hole_cards(self, value):
-        # if self._hole_cards:
-        #     raise ValueError
+        if self._hole_cards:
+            raise ValueError
         self._hole_cards = value
+
+    def compute_player_score(self):
+        pass
 
     def fold(self):
         pass
