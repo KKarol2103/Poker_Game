@@ -56,7 +56,9 @@ class Game:
     def get_winner(self) -> Player:
         score_dict = {}
         for player in self._players_in_game:
-            pass
+            player_score = player.compute_player_score(self._game_table)
+            score_dict[player.name] = player_score
+        return max(score_dict, key=score_dict.get)
 
     def play(self):
         print("Welcome to the Texas hold'em game!")

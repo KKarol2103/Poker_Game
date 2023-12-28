@@ -227,3 +227,21 @@ def test_compute_player_score_straight_flush():
                                   Card(Value.THREE, Color.SPADES),
                                   Card(Value.TWO, Color.DIAMONDS)]
     assert player.compute_player_score(game_table) == 9
+
+
+def mock_compute_player_score(self, table):
+    if isinstance(self, Player):
+        return 6
+    else:
+        return 4
+
+
+def test_get_winer(monkeypatch):
+    game = Game()
+    monkeypatch.setattr(Player, "compute_player_score", mock_compute_player_score)
+    monkeypatch.setattr(AIPlayer, "compute_player_score", mock_compute_player_score)
+    normal_player = Player(0, "Gracz")
+    first_ai_player = AIPlayer(1)
+    second_ai_player = AIPlayer(2)
+    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+    assert game.get_winner() == "Gracz"
