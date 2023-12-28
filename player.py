@@ -8,7 +8,7 @@ class Player:
         self._player_num = player_num
         self._name = name
         self._chips = chips
-        self._hole_cards = []
+        self._hole_cards: List[Card] = []
 
     @property
     def player_num(self):
@@ -110,6 +110,13 @@ class Player:
 
     def check(self):
         print("Player Checks")
+
+    def show_player_hole_cards(self) -> None:
+        cards = ""
+        for card in self._hole_cards:
+            cards += str(card)
+            cards += " "
+        print(cards)
 
 
 class AIPlayer(Player):

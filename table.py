@@ -27,6 +27,6 @@ class Table:
         text = "Cards on the table:"
         text += "\n"
         for card in self._community_cards:
-            text += card.__str__()
-            text += "\n"
+            text += str(card)
+            text += " "
         return text

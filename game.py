@@ -84,19 +84,27 @@ class Game:
         else:
             raise ValueError("Incorrect Choice!")
 
+    def deal_the_cards(self) -> None:
+        for player in self._players_in_game:
+            player.hole_cards = self._game_deck.draw_player_hole_cards()
+
     def play(self):
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
         self._game_deck.tass_cards()
         player_name, player_chips = self.get_basic_user_data()
+        new_player = Player(0, player_name, player_chips)
         no_opponents = input("How many opponents do you want to have: ")
-        self._players_in_game.append(Player(0, player_name, player_chips))
+        self._players_in_game.append(new_player)
 
         # TODO to improve later - add external function
         for i in range(int(no_opponents)):
             self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 10000))
 
         self.draw_the_order_of_players()
+        self.deal_the_cards()
+        print("Your Cards: ")
+        new_player.show_player_hole_cards()
 
         for self._round in range(1, 5):
             print(f'Round: {self.get_current_round_name():^30}')
@@ -110,13 +118,15 @@ class Game:
                 if isinstance(current_player, AIPlayer):
                     print("AI thinks...")
                 else:
+                    print(self._game_table)
+                    print("Your Cards: ")
+                    current_player.show_player_hole_cards()
                     self.player_decide_what_to_do(current_player)
                 time.sleep(5)
 
         print("Time to showdown!")
         winner = self.get_winner()
         print(f'And the winner is: ... {winner} ')
-
 
 
 def main():

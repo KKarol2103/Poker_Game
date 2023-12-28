@@ -7,6 +7,15 @@ class Color(Enum):
     CLUBS = 3
     SPADES = 4
 
+    def __str__(self) -> str:
+        color_symbols = {
+            Color.HEARTS: "♥",
+            Color.DIAMONDS: "♦",
+            Color.CLUBS: "♣",
+            Color.SPADES: "♠"
+        }
+        return color_symbols[self]
+
 
 class Value(Enum):
     TWO = (2, "2")
@@ -26,6 +35,9 @@ class Value(Enum):
     def __init__(self, number, symbol):
         self.number = number
         self.symbol = symbol
+
+    def __str__(self) -> str:
+        return self.symbol
 
 
 class Card:
@@ -54,4 +66,4 @@ class Card:
         return f"{self._value.name} of {self._color.name}"
 
     def __str__(self) -> str:
-        return f"{self._value.name} of {self._color.name}"
+        return f"{str(self._value)} {str(self._color)}"
