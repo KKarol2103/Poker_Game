@@ -116,7 +116,6 @@ def test_try_to_put_wrong_round():
 def test_print_table():
     game_table = Table()
     game_deck = Deck()
-    new_card = Card(Value.SEVEN, Color.DIAMONDS)
     game_deck.put_cards_on_the_table(2, game_table)
     print(game_deck)
 
