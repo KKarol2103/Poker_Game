@@ -245,3 +245,18 @@ def test_get_winer(monkeypatch):
     second_ai_player = AIPlayer(2)
     game.players_in_game = [normal_player, first_ai_player, second_ai_player]
     assert game.get_winner() == "Gracz"
+
+
+def test_get_current_player():
+    game = Game()
+    normal_player = Player(0, "Gracz")
+    first_ai_player = AIPlayer(1)
+    second_ai_player = AIPlayer(2)
+    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+
+    game.get_current_player()
+    assert game.players_in_game == [first_ai_player, second_ai_player, normal_player]
+    game.get_current_player()
+    assert game.players_in_game == [second_ai_player, normal_player, first_ai_player]
+    game.get_current_player()
+    assert game.players_in_game == [normal_player, first_ai_player, second_ai_player]

@@ -3,6 +3,7 @@ from table import Table
 from deck import Deck
 from typing import List, Tuple
 import random
+import time
 
 
 class Game:
@@ -60,6 +61,29 @@ class Game:
             score_dict[player.name] = player_score
         return max(score_dict, key=score_dict.get)
 
+    def get_current_player(self) -> Player:
+        player = self._players_in_game.pop(0)
+        self._players_in_game.append(player)
+        return player
+
+    def player_decide_what_to_do(self, player: Player) -> None:
+        print("Options:")
+        print("1. Fold")
+        print("2. Call")
+        print("3. Check")
+        print("4. Raise")
+        choice = int(input("Decide What to do: "))
+        if choice == 1:
+            player.fold()
+        elif choice == 2:
+            player.call()
+        elif choice == 3:
+            player.check()
+        elif choice == 4:
+            player.make_raise()
+        else:
+            raise ValueError("Incorrect Choice!")
+
     def play(self):
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
@@ -70,7 +94,9 @@ class Game:
 
         # TODO to improve later - add external function
         for i in range(int(no_opponents)):
-            self._players_in_game.append(AIPlayer(i, f"random{i}", 10000))
+            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 10000))
+
+        self.draw_the_order_of_players()
 
         for self._round in range(1, 5):
             print(f'Round: {self.get_current_round_name():^30}')
@@ -78,9 +104,19 @@ class Game:
             print(self._game_table)
             print("Now it is time for everyone to decide what to do!")
             print("We will start with: ...")
+            for _ in range(len(self._players_in_game)):
+                current_player = self.get_current_player()
+                print(current_player.name)
+                if isinstance(current_player, AIPlayer):
+                    print("AI thinks...")
+                else:
+                    self.player_decide_what_to_do(current_player)
+                time.sleep(5)
 
         print("Time to showdown!")
-        # winner = self.get_winner()
+        winner = self.get_winner()
+        print(f'And the winner is: ... {winner} ')
+
 
 
 def main():

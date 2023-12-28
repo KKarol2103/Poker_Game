@@ -100,16 +100,16 @@ class Player:
         return max(player_points)
 
     def fold(self):
-        pass
+        print("Player Folds")
 
     def call(self):
-        pass
+        print("Player Calls")
 
     def make_raise(self):
-        pass
+        print("Player Raises")
 
     def check(self):
-        pass
+        print("Player Checks")
 
 
 class AIPlayer(Player):
