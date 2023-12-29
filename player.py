@@ -1,6 +1,7 @@
 from table import Table
 from card import Card, Color, Value
 from typing import List, Tuple
+import random
 
 
 class Player:
@@ -129,6 +130,8 @@ class Player:
 
     def make_raise(self, game_table: Table, amount: int) -> None:
         print("Player Raises")
+        if self._chips - amount < 0:
+            raise ValueError("You don't have enough chips to raise")
         self._in_game_chips = game_table.current_rate + amount
         self._chips -= amount
 
@@ -150,5 +153,5 @@ class Player:
 
 class AIPlayer(Player):
 
-    def decide_what_to_do(self):
-        pass
+    def decide_what_to_do(self, game_table: Table) -> int:
+        return random.randint(1, 4)

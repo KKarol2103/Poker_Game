@@ -243,7 +243,9 @@ def test_get_winer(monkeypatch):
     first_ai_player = AIPlayer(1)
     second_ai_player = AIPlayer(2)
     game.players_in_game = [normal_player, first_ai_player, second_ai_player]
-    assert game.get_winner() == "Gracz"
+    winner, score = game.get_winner()
+    assert winner.name == "Gracz"
+    assert score == 6
 
 
 def test_get_current_player():
@@ -307,3 +309,32 @@ def test_player_make_raise():
     assert game._game_table.stake == 500
     assert normal_player._chips == 300
     assert normal_player._in_game_chips == 400
+
+
+def test_player_makes_raise_2():
+    player = Player(chips=1000)
+    table = Table()
+    initial_chips = player._chips
+    raise_amount = 100
+    table.current_rate = 200
+    table.stake = 300
+
+    player.make_raise(table, raise_amount)
+
+    assert table.current_rate == 200 + raise_amount
+    assert table.stake == 300 + raise_amount
+
+    assert player._chips == initial_chips - raise_amount
+    assert player._in_game_chips == table.current_rate
+
+
+def test_player_makes_raise_with_insufficient_chips():
+    player = Player(chips=1000)
+    table = Table()
+    player._chips = 50
+    raise_amount = 100
+    table.current_rate = 200
+    table.stake = 300
+
+    with pytest.raises(ValueError):
+        player.make_raise(table, raise_amount)

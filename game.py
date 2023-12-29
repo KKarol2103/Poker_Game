@@ -54,12 +54,13 @@ class Game:
 
         self._players_in_game.sort(key=lambda player: player.player_num)
 
-    def get_winner(self) -> Player:
+    def get_winner(self) -> Tuple[Player, int]:
         score_dict = {}
         for player in self._players_in_game:
             player_score = player.compute_player_score(self._game_table)
-            score_dict[player.name] = player_score
-        return max(score_dict, key=score_dict.get)
+            score_dict[player] = player_score
+        player_with_max_score = max(score_dict, key=score_dict.get)
+        return player_with_max_score, score_dict[player_with_max_score]
 
     def get_current_player(self) -> Player:
         player = self._players_in_game.pop(0)
@@ -67,12 +68,15 @@ class Game:
         return player
 
     def player_decide_what_to_do(self, player: Player) -> None:
-        print("Options:")
-        print("1. Fold")
-        print("2. Call")
-        print("3. Check")
-        print("4. Raise")
-        choice = int(input("Decide What to do: "))
+        if isinstance(player, AIPlayer):
+            choice = player.decide_what_to_do(self._game_table)
+        else:
+            print("Options:")
+            print("1. Fold")
+            print("2. Call")
+            print("3. Check")
+            print("4. Raise")
+            choice = int(input("Decide What to do: "))
         if choice == 1:
             player.fold()
         elif choice == 2:
@@ -95,11 +99,11 @@ class Game:
         self._game_deck.tass_cards()
         player_name, player_chips = self.get_basic_user_data()
         new_player = Player(0, player_name, player_chips)
-        no_opponents = input("How many opponents do you want to have: ")
+        no_opponents = int(input("How many opponents do you want to have: "))
         self._players_in_game.append(new_player)
 
         # TODO to improve later - add external function
-        for i in range(int(no_opponents)):
+        for i in range(no_opponents):
             self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 5000))
 
         self.draw_the_order_of_players()
@@ -109,29 +113,36 @@ class Game:
 
         for self._round in range(1, 5):
             print(f'Round: {self.get_current_round_name()}')
+            print(30 * "-")
             time.sleep(3)
             self._game_deck.put_cards_on_the_table(self._round, self._game_table)
             print(self._game_table)
             print("Now it is time for everyone to decide what to do!")
+            print(30 * "-")
             time.sleep(3)
             print("Current Player: ")
             time.sleep(1)
             for _ in range(len(self._players_in_game)):
                 current_player = self.get_current_player()
+                print(30 * "-")
                 print(current_player.name)
                 if current_player.is_active:
                     if isinstance(current_player, AIPlayer):
                         print("AI thinks...")
+                        self.player_decide_what_to_do(current_player)
                     else:
+                        print(30 * "-")
                         print(self._game_table)
                         print("Your Cards: ")
                         current_player.show_player_hole_cards()
                         self.player_decide_what_to_do(current_player)
+                    print(30 * "-")
+
                 time.sleep(3)
 
         print("Time to showdown!")
-        winner = self.get_winner()
-        print(f'And the winner is: ... {winner} ')
+        winner, score = self.get_winner()
+        print(f'And the winner is: ... {winner.name} with result {score}')
 
 
 def main():
