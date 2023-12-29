@@ -8,6 +8,8 @@ class Player:
         self._player_num = player_num
         self._name = name
         self._chips = chips
+        self._in_game_chips: int = 0
+        self._is_active: bool = True
         self._hole_cards: List[Card] = []
 
     @property
@@ -43,6 +45,22 @@ class Player:
         if self._hole_cards:
             raise ValueError
         self._hole_cards = value
+
+    @property
+    def in_game_chips(self):
+        return self._in_game_chips
+
+    @in_game_chips.setter
+    def in_game_chips(self, value):
+        self._in_game_chips = value
+
+    @property
+    def is_active(self):
+        return self._is_active
+
+    @is_active.setter
+    def is_active(self, value):
+        self._is_active = value
 
     def check_if_there_is_a_straight(self, all_cards: List[Tuple[Color, Value]]) -> bool:
         for i in range(len(all_cards) - 4):
@@ -99,17 +117,28 @@ class Player:
 
         return max(player_points)
 
-    def fold(self):
+    def fold(self) -> None:
         print("Player Folds")
+        self._is_active = False
 
-    def call(self):
+    def call(self, game_table: Table) -> None:
         print("Player Calls")
+        needs_to_put = game_table.current_rate - self._in_game_chips
+        self._in_game_chips += needs_to_put
+        self._chips -= needs_to_put
 
-    def make_raise(self):
+    def make_raise(self, game_table: Table, amount: int) -> None:
         print("Player Raises")
+        self._in_game_chips = game_table.current_rate + amount
+        self._chips -= amount
 
-    def check(self):
+        game_table.current_rate = self._in_game_chips
+        game_table.stake += amount
+
+    def check(self, game_table: Table) -> None:
         print("Player Checks")
+        if game_table.current_rate != self._in_game_chips:
+            raise ValueError("Cannot check when rate is bigger")
 
     def show_player_hole_cards(self) -> None:
         cards = ""

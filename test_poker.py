@@ -259,3 +259,52 @@ def test_get_current_player():
     assert game.players_in_game == [second_ai_player, normal_player, first_ai_player]
     game.get_current_player()
     assert game.players_in_game == [normal_player, first_ai_player, second_ai_player]
+
+
+def test_player_call():
+    game = Game()
+    normal_player = Player(0, "Gracz")
+    game._game_table.current_rate = 400
+    game._game_table.stake = 700
+    normal_player._chips = 500
+    normal_player._in_game_chips = 100
+
+    normal_player.call(game._game_table)
+    assert normal_player.chips == 200
+    assert normal_player.in_game_chips == 400
+
+
+def test_player_check():
+    game = Game()
+    normal_player = Player(0, "Gracz")
+    game._game_table.current_rate = 400
+    game._game_table.stake = 1400
+    normal_player._chips = 500
+    normal_player._in_game_chips = 400
+    normal_player.check(game._game_table)
+
+
+def test_attempt_to_check_when_rate_is_bigger_than_player_chips():
+    game = Game()
+    normal_player = Player(0, "Gracz")
+    game._game_table.current_rate = 400
+    game._game_table.stake = 1400
+    normal_player._chips = 500
+    normal_player._in_game_chips = 200
+    with pytest.raises(ValueError):
+        normal_player.check(game._game_table)
+
+
+def test_player_make_raise():
+    game = Game()
+    normal_player = Player(0, "Gracz")
+    game._game_table.current_rate = 200
+    game._game_table.stake = 300
+    normal_player._chips = 500
+    normal_player._in_game_chips = 200
+    normal_player.make_raise(game._game_table, 200)
+    assert game._game_table.current_rate == 400
+    assert game._game_table.stake == 500
+    assert normal_player._chips == 300
+    assert normal_player._in_game_chips == 400
+

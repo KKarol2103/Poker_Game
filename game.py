@@ -107,7 +107,7 @@ class Game:
         new_player.show_player_hole_cards()
 
         for self._round in range(1, 5):
-            print(f'Round: {self.get_current_round_name():^30}')
+            print(f'Round: {self.get_current_round_name()}')
             self._game_deck.put_cards_on_the_table(self._round, self._game_table)
             print(self._game_table)
             print("Now it is time for everyone to decide what to do!")
