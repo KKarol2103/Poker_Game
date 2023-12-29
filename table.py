@@ -38,4 +38,6 @@ class Table:
         for card in self._community_cards:
             text += str(card)
             text += " "
+        text += "\n"
+        text += f'Current Rate: {self._current_rate} Current Stake: {self._stake}'
         return text

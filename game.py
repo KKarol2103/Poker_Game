@@ -76,11 +76,12 @@ class Game:
         if choice == 1:
             player.fold()
         elif choice == 2:
-            player.call()
+            player.call(self._game_table)
         elif choice == 3:
-            player.check()
+            player.check(self._game_table)
         elif choice == 4:
-            player.make_raise()
+            amount = int(input("Raise Amount: "))
+            player.make_raise(self._game_table, amount)
         else:
             raise ValueError("Incorrect Choice!")
 
@@ -99,7 +100,7 @@ class Game:
 
         # TODO to improve later - add external function
         for i in range(int(no_opponents)):
-            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 10000))
+            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 5000))
 
         self.draw_the_order_of_players()
         self.deal_the_cards()
@@ -108,21 +109,25 @@ class Game:
 
         for self._round in range(1, 5):
             print(f'Round: {self.get_current_round_name()}')
+            time.sleep(3)
             self._game_deck.put_cards_on_the_table(self._round, self._game_table)
             print(self._game_table)
             print("Now it is time for everyone to decide what to do!")
-            print("We will start with: ...")
+            time.sleep(3)
+            print("Current Player: ")
+            time.sleep(1)
             for _ in range(len(self._players_in_game)):
                 current_player = self.get_current_player()
                 print(current_player.name)
-                if isinstance(current_player, AIPlayer):
-                    print("AI thinks...")
-                else:
-                    print(self._game_table)
-                    print("Your Cards: ")
-                    current_player.show_player_hole_cards()
-                    self.player_decide_what_to_do(current_player)
-                time.sleep(5)
+                if current_player.is_active:
+                    if isinstance(current_player, AIPlayer):
+                        print("AI thinks...")
+                    else:
+                        print(self._game_table)
+                        print("Your Cards: ")
+                        current_player.show_player_hole_cards()
+                        self.player_decide_what_to_do(current_player)
+                time.sleep(3)
 
         print("Time to showdown!")
         winner = self.get_winner()

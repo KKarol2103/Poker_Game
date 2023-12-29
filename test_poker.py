@@ -307,4 +307,3 @@ def test_player_make_raise():
     assert game._game_table.stake == 500
     assert normal_player._chips == 300
     assert normal_player._in_game_chips == 400
-
