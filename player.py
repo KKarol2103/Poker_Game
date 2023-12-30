@@ -43,8 +43,8 @@ class Player:
 
     @hole_cards.setter
     def hole_cards(self, value):
-        if self._hole_cards:
-            raise ValueError
+        # if self._hole_cards:
+        #     raise ValueError
         self._hole_cards = value
 
     @property
@@ -64,6 +64,8 @@ class Player:
         self._is_active = value
 
     def check_if_there_is_a_straight(self, all_cards: List[Tuple[Color, Value]]) -> bool:
+        if len(all_cards) <= 4:
+            return False
         for i in range(len(all_cards) - 4):
             straight = True
             for j in range(4):
@@ -71,7 +73,6 @@ class Player:
                 if all_cards[i + j][1].value[0] + 1 != all_cards[i + j + 1][1].value[0]:
                     straight = False
                     break
-
         return straight
 
     def compute_player_score(self, game_table: Table) -> int:
@@ -119,17 +120,14 @@ class Player:
         return max(player_points)
 
     def fold(self) -> None:
-        print("Player Folds")
         self._is_active = False
 
     def call(self, game_table: Table) -> None:
-        print("Player Calls")
         needs_to_put = game_table.current_rate - self._in_game_chips
         self._in_game_chips += needs_to_put
         self._chips -= needs_to_put
 
     def make_raise(self, game_table: Table, amount: int) -> None:
-        print("Player Raises")
         if self._chips - amount < 0:
             raise ValueError("You don't have enough chips to raise")
         self._in_game_chips = game_table.current_rate + amount
@@ -139,7 +137,6 @@ class Player:
         game_table.stake += amount
 
     def check(self, game_table: Table) -> None:
-        print("Player Checks")
         if game_table.current_rate != self._in_game_chips:
             raise ValueError("Cannot check when rate is bigger")
 
@@ -154,4 +151,29 @@ class Player:
 class AIPlayer(Player):
 
     def decide_what_to_do(self, game_table: Table) -> int:
-        return random.randint(1, 4)
+        hand_strength = self.compute_player_score(game_table)
+        cards_on_the_table = len(game_table.community_cards)
+        strong_hand = 3  # Assume that three of a kind is a very good situation
+        # TODO to change it later
+        if not cards_on_the_table:
+            return random.randint(1, 3)
+
+        is_strong = hand_strength >= strong_hand
+
+        if is_strong and game_table.current_rate < self._chips:
+            return 4  # RAISE
+        elif is_strong and game_table.current_rate == self._chips:
+            return 2  # CALL
+
+        if cards_on_the_table == 3 and hand_strength == 0:
+            if game_table.current_rate == self._in_game_chips:
+                return 3  # CHECK
+            return 2  # CALL
+
+        if cards_on_the_table > 3 and hand_strength == 0:
+            return 1  # FOLD
+
+        return 1  # FOLD
+
+    def decide_how_much_to_raise(self, game_table: Table) -> int:
+        return self._chips // 4

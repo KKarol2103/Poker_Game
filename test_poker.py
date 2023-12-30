@@ -80,12 +80,12 @@ def test_draw_hole_cards():
     assert len(deck.cards_in_game) == 50
 
 
-def test_attempt_to_give_player_more_cards():
-    deck = Deck()
-    new_player = Player()
-    new_player.hole_cards = deck.draw_player_hole_cards()
-    with pytest.raises(ValueError):
-        new_player.hole_cards = deck.draw_player_hole_cards()
+# def test_attempt_to_give_player_more_cards():
+#     deck = Deck()
+#     new_player = Player()
+#     new_player.hole_cards = deck.draw_player_hole_cards()
+#     with pytest.raises(ValueError):
+#         new_player.hole_cards = deck.draw_player_hole_cards()
 
 
 def test_put_cards_on_the_table_flop():
@@ -338,3 +338,59 @@ def test_player_makes_raise_with_insufficient_chips():
 
     with pytest.raises(ValueError):
         player.make_raise(table, raise_amount)
+
+
+def test_check_if_all_players_matched():
+    game = Game()
+    player = Player(chips=1000)
+    first_ai_player = AIPlayer(1, chips=500)
+    second_ai_player = AIPlayer(2, chips=500)
+    game.players_in_game = [player, first_ai_player, second_ai_player]
+    game._game_table.current_rate = 200
+    player.in_game_chips = 200
+    first_ai_player.in_game_chips = 200
+    second_ai_player.is_active = False
+    assert game.check_all_players_matched() is True
+
+
+def test_aiplayer_raise():
+    ai_player = AIPlayer("AIPlayer", chips=1000)  # Gracz AI z 1000 żetonami
+    game_table = Table()
+    game_table.community_cards = []  # Początkowo brak kart wspólnych
+    game_table.current_rate = 100  # Zakładamy początkową stawkę 100
+    game_table.community_cards = [Card(Value.KING, Color.CLUBS), Card(Value.KING, Color.DIAMONDS), Card(Value.KING, Color.CLUBS)]
+    ai_player._in_game_chips = 100
+    assert ai_player.decide_what_to_do(game_table) == 4
+
+
+def test_aiplayer_call():
+    ai_player = AIPlayer("AIPlayer", chips=1000)  # Gracz AI z 1000 żetonami
+    game_table = Table()
+    game_table.community_cards = []  # Początkowo brak kart wspólnych
+    game_table.current_rate = 100  # Zakładamy początkową stawkę 100
+    game_table.community_cards = [Card(Value.KING, Color.CLUBS), Card(Value.KING, Color.DIAMONDS), Card(Value.KING, Color.CLUBS)]
+    ai_player._in_game_chips = 100
+    ai_player._chips = 100
+    assert ai_player.decide_what_to_do(game_table) == 2
+
+
+def test_aiplayer_check():
+    ai_player = AIPlayer("AIPlayer", chips=1000)  # Gracz AI z 1000 żetonami
+
+    game_table = Table()
+    game_table.community_cards = []  # Początkowo brak kart wspólnych
+    game_table.current_rate = 100  # Zakładamy początkową stawkę 100
+    game_table.community_cards = [Card(Value.TWO, Color.DIAMONDS), Card(Value.FIVE, Color.CLUBS), Card(Value.ACE, Color.SPADES)]
+    ai_player._in_game_chips = 100
+    assert ai_player.decide_what_to_do(game_table) == 3  # Oczekiwany CHECK
+
+
+def test_aiplayer_fold():
+    ai_player = AIPlayer("AIPlayer", chips=1000)  # Gracz AI z 1000 żetonami
+
+    game_table = Table()
+    game_table.community_cards = []  # Początkowo brak kart wspólnych
+    game_table.current_rate = 100  # Zakładamy początkową stawkę 100
+    game_table.community_cards = [Card(Value.TWO, Color.DIAMONDS), Card(Value.FIVE, Color.CLUBS), Card(Value.ACE, Color.SPADES), Card(Value.JACK, Color.SPADES)]
+    ai_player._in_game_chips = 100
+    assert ai_player.decide_what_to_do(game_table) == 1  # Oczekiwany FOLD

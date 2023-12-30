@@ -57,8 +57,9 @@ class Game:
     def get_winner(self) -> Tuple[Player, int]:
         score_dict = {}
         for player in self._players_in_game:
-            player_score = player.compute_player_score(self._game_table)
-            score_dict[player] = player_score
+            if player.is_active:
+                player_score = player.compute_player_score(self._game_table)
+                score_dict[player] = player_score
         player_with_max_score = max(score_dict, key=score_dict.get)
         return player_with_max_score, score_dict[player_with_max_score]
 
@@ -67,7 +68,7 @@ class Game:
         self._players_in_game.append(player)
         return player
 
-    def player_decide_what_to_do(self, player: Player) -> None:
+    def player_decide_what_to_do(self, player: Player) -> int:
         if isinstance(player, AIPlayer):
             choice = player.decide_what_to_do(self._game_table)
         else:
@@ -78,22 +79,76 @@ class Game:
             print("4. Raise")
             choice = int(input("Decide What to do: "))
         if choice == 1:
+            print("Player Folds")
             player.fold()
         elif choice == 2:
+            print("Player Calls")
             player.call(self._game_table)
         elif choice == 3:
+            print("Player Checks")
             player.check(self._game_table)
         elif choice == 4:
-            amount = int(input("Raise Amount: "))
+            if isinstance(player, AIPlayer):
+                amount = player.decide_how_much_to_raise(self._game_table)
+            else:
+                amount = int(input("Raise Amount: "))
+            print(f"Player Raises by {amount}")
             player.make_raise(self._game_table, amount)
         else:
             raise ValueError("Incorrect Choice!")
+
+        return choice
 
     def deal_the_cards(self) -> None:
         for player in self._players_in_game:
             player.hole_cards = self._game_deck.draw_player_hole_cards()
 
+    def mark_all_players_as_active(self) -> None:
+        for player in self._players_in_game:
+            player.is_active = True
+
+    def check_all_players_matched(self) -> bool:
+        return all(player.in_game_chips == self._game_table.current_rate or not player.is_active for player in self._players_in_game)
+
+    def check_only_one_player_left(self) -> bool:
+        return sum(player.is_active for player in self._players_in_game) == 1
+
+    def conduct_betting_round(self) -> None:
+        raise_made = True
+        while (raise_made):
+            raise_made = False
+            for player in (self._players_in_game):
+                current_player = self.get_current_player()
+                print(30 * "-")
+                print(current_player.name)
+                if current_player.is_active:
+                    if isinstance(current_player, AIPlayer):
+                        print("AI thinks...")
+                        choice = self.player_decide_what_to_do(current_player)
+                    else:
+                        print(30 * "-")
+                        print(self._game_table)
+                        print("Your Cards: ")
+                        current_player.show_player_hole_cards()
+                        choice = self.player_decide_what_to_do(current_player)
+                    print(30 * "-")
+
+                    if choice == 4:
+                        raise_made = True
+
+                    time.sleep(3)
+
+            if self.check_only_one_player_left():
+                break
+
+            if not raise_made and self.check_all_players_matched():
+                break
+
+            time.sleep(3)
+
     def play(self):
+        running = True
+
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
         self._game_deck.tass_cards()
@@ -106,43 +161,38 @@ class Game:
         for i in range(no_opponents):
             self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 5000))
 
-        self.draw_the_order_of_players()
-        self.deal_the_cards()
-        print("Your Cards: ")
-        new_player.show_player_hole_cards()
+        while (running):
+            self.mark_all_players_as_active()
+            self.draw_the_order_of_players()
+            self.deal_the_cards()
+            print("Your Cards: ")
+            new_player.show_player_hole_cards()
 
-        for self._round in range(1, 5):
-            print(f'Round: {self.get_current_round_name()}')
-            print(30 * "-")
-            time.sleep(3)
-            self._game_deck.put_cards_on_the_table(self._round, self._game_table)
-            print(self._game_table)
-            print("Now it is time for everyone to decide what to do!")
-            print(30 * "-")
-            time.sleep(3)
-            print("Current Player: ")
-            time.sleep(1)
-            for _ in range(len(self._players_in_game)):
-                current_player = self.get_current_player()
+            for self._round in range(1, 5):
+                print(f'Round: {self.get_current_round_name()}')
                 print(30 * "-")
-                print(current_player.name)
-                if current_player.is_active:
-                    if isinstance(current_player, AIPlayer):
-                        print("AI thinks...")
-                        self.player_decide_what_to_do(current_player)
-                    else:
-                        print(30 * "-")
-                        print(self._game_table)
-                        print("Your Cards: ")
-                        current_player.show_player_hole_cards()
-                        self.player_decide_what_to_do(current_player)
-                    print(30 * "-")
-
                 time.sleep(3)
+                self._game_deck.put_cards_on_the_table(self._round, self._game_table)
+                print(self._game_table)
+                print("Now it is time for everyone to decide what to do!")
+                print(30 * "-")
+                time.sleep(3)
+                print("Current Player: ")
+                time.sleep(1)
+                self.conduct_betting_round()
 
-        print("Time to showdown!")
-        winner, score = self.get_winner()
-        print(f'And the winner is: ... {winner.name} with result {score}')
+            print("Time to showdown!")
+            winner, score = self.get_winner()
+            print(f'And the winner is: ... {winner.name} with result {score}')
+            print("His Cards Were: ")
+            winner.show_player_hole_cards()
+            winner.chips += self._game_table.stake
+            print(f"Your current chips status: {new_player.chips}")
+            decision = input("Would You Like to Play Again? [Y/N]: ")
+            if decision == "N":
+                running = False
+            print(" ")
+        print("See You Soon!")
 
 
 def main():
