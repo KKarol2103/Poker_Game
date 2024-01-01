@@ -25,6 +25,12 @@ def test_compare_two_cards_gt():
     assert my_card > my_sec_card
 
 
+def test_check_if_values_are_equal():
+    my_val1 = Value.FIVE
+    my_val2 = Value.FIVE
+    assert my_val1 == my_val2
+
+
 def test_init_cards_used_in_game():
     play_deck = Deck()
     colors_in_game_count = {}
@@ -177,6 +183,30 @@ def test_compute_player_score_straight():
                                   Card(Value.NINE, Color.HEARTS),
                                   Card(Value.TWO, Color.CLUBS),
                                   Card(Value.THREE, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 4
+
+
+def test_compute_player_score_broadway_straight():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.ACE, Color.HEARTS), Card(Value.KING, Color.SPADES)]
+    game_table.community_cards = [Card(Value.QUEEN, Color.DIAMONDS),
+                                  Card(Value.JACK, Color.CLUBS),
+                                  Card(Value.TEN, Color.HEARTS),
+                                  Card(Value.THREE, Color.SPADES),
+                                  Card(Value.TWO, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 4
+
+
+def test_compute_player_score_wheel_straight():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.ACE, Color.HEARTS), Card(Value.TWO, Color.SPADES)]
+    game_table.community_cards = [Card(Value.THREE, Color.DIAMONDS),
+                                  Card(Value.FOUR, Color.CLUBS),
+                                  Card(Value.FIVE, Color.HEARTS),
+                                  Card(Value.SEVEN, Color.SPADES),
+                                  Card(Value.EIGHT, Color.DIAMONDS)]
     assert player.compute_player_score(game_table) == 4
 
 

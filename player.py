@@ -62,6 +62,13 @@ class Player:
     def is_active(self, value):
         self._is_active = value
 
+    def check_for_wheel_straight(self, last_card: Card, all_cards: List[Tuple[Color, Value]]) -> bool:
+        cards_if_ace_was_on_the_front = all_cards[:4]
+        cards_if_ace_was_on_the_front.insert(0, last_card)
+        card_numbers = [card[1].value[0] for card in all_cards]
+        if all(val in card_numbers for val in [2, 3, 4, 5]):
+            return True
+
     def check_if_there_is_a_straight(self, all_cards: List[Tuple[Color, Value]]) -> bool:
         if len(all_cards) <= 4:
             return False
@@ -76,6 +83,11 @@ class Player:
                 if current_card_value + 1 != next_card_value:
                     straight = False
                     break
+
+        last_card = all_cards[-1]
+        last_card_value = last_card[1].value[0]
+        if not straight and last_card_value == 14:
+            straight = self.check_for_wheel_straight(last_card, all_cards)
         return straight
 
     def compute_player_score(self, game_table: Table) -> int:
