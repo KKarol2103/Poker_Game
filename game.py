@@ -129,18 +129,18 @@ class Game:
         if self._round == 1:
             small_blind, big_blind = self.assign_bets_to_big_blind_and_small_blind()
             print(f"Small Blind Player - {small_blind} Raises by: 10")
-            print(f"Big Blind Player - {big_blind} Raises by 20")
+            print(f"Big Blind Player - {big_blind} Raises by: 20")
             time.sleep(3)
         raise_made = True
-        encirclement = 0
+        last_raiser = None
+        dealer_played = False
         while (raise_made):
             raise_made = False
             for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
                 print(current_player.name)
-                if self._round == 1 and index < 3 and encirclement == 0:
-                    raise_made = True
+                if self._round == 1 and index < 3 and not dealer_played:
                     continue
 
                 if current_player.is_active:
@@ -157,11 +157,26 @@ class Game:
                     print(30 * "-")
 
                     if choice == 4:
+                        last_raiser = current_player
                         raise_made = True
+                    elif last_raiser == current_player:
+                        raise_made = False
+                        break
 
                     time.sleep(3)
 
-            encirclement += 1
+            if self._round == 1 and not dealer_played:
+                dealer_played = True
+                dealer = self._players_in_game[0]
+                print(30 * "-")
+                print(dealer.name)
+                choice = self.player_decide_what_to_do(dealer)
+                print(30 * "-")
+
+                if choice == 4:
+                    raise_made = True
+
+                time.sleep(3)
 
             if self.check_only_one_player_left():
                 break

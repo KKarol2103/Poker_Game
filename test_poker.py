@@ -168,6 +168,18 @@ def test_compute_player_score_three_of_a_kind():
     assert player.compute_player_score(game_table) == 3
 
 
+def test_compute_player_score_straight():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.FIVE, Color.HEARTS), Card(Value.SIX, Color.CLUBS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.DIAMONDS),
+                                  Card(Value.EIGHT, Color.SPADES),
+                                  Card(Value.NINE, Color.HEARTS),
+                                  Card(Value.TWO, Color.CLUBS),
+                                  Card(Value.THREE, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 4
+
+
 def test_compute_player_score_flush():
     player = Player()
     game_table = Table()
@@ -178,18 +190,6 @@ def test_compute_player_score_flush():
                                   Card(Value.JACK, Color.DIAMONDS),
                                   Card(Value.NINE, Color.CLUBS)]
     assert player.compute_player_score(game_table) == 5
-
-
-def test_compute_player_score_four_of_a_kind():
-    player = Player()
-    game_table = Table()
-    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.SEVEN, Color.HEARTS)]
-    game_table.community_cards = [Card(Value.SEVEN, Color.CLUBS),
-                                  Card(Value.SEVEN, Color.SPADES),
-                                  Card(Value.EIGHT, Color.SPADES),
-                                  Card(Value.JACK, Color.HEARTS),
-                                  Card(Value.NINE, Color.CLUBS)]
-    assert player.compute_player_score(game_table) == 7
 
 
 def test_compute_player_score_full_house():
@@ -204,16 +204,16 @@ def test_compute_player_score_full_house():
     assert player.compute_player_score(game_table) == 6
 
 
-def test_compute_player_score_straight():
+def test_compute_player_score_four_of_a_kind():
     player = Player()
     game_table = Table()
-    player.hole_cards = [Card(Value.FIVE, Color.HEARTS), Card(Value.SIX, Color.CLUBS)]
-    game_table.community_cards = [Card(Value.SEVEN, Color.DIAMONDS),
+    player.hole_cards = [Card(Value.SEVEN, Color.DIAMONDS), Card(Value.SEVEN, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.CLUBS),
+                                  Card(Value.SEVEN, Color.SPADES),
                                   Card(Value.EIGHT, Color.SPADES),
-                                  Card(Value.NINE, Color.HEARTS),
-                                  Card(Value.TWO, Color.CLUBS),
-                                  Card(Value.THREE, Color.DIAMONDS)]
-    assert player.compute_player_score(game_table) == 4
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.NINE, Color.CLUBS)]
+    assert player.compute_player_score(game_table) == 7
 
 
 def test_compute_player_score_straight_flush():
@@ -225,7 +225,31 @@ def test_compute_player_score_straight_flush():
                                   Card(Value.FIVE, Color.HEARTS),
                                   Card(Value.THREE, Color.SPADES),
                                   Card(Value.TWO, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 8
+
+
+def test_compute_player_score_royal_flush():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.ACE, Color.HEARTS), Card(Value.KING, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.QUEEN, Color.HEARTS),
+                                  Card(Value.JACK, Color.HEARTS),
+                                  Card(Value.TEN, Color.HEARTS),
+                                  Card(Value.THREE, Color.SPADES),
+                                  Card(Value.TWO, Color.DIAMONDS)]
     assert player.compute_player_score(game_table) == 9
+
+
+def test_compute_player_score_three_pairs():
+    player = Player()
+    game_table = Table()
+    player.hole_cards = [Card(Value.TWO, Color.HEARTS), Card(Value.EIGHT, Color.HEARTS)]
+    game_table.community_cards = [Card(Value.SEVEN, Color.HEARTS),
+                                  Card(Value.SEVEN, Color.CLUBS),
+                                  Card(Value.FIVE, Color.HEARTS),
+                                  Card(Value.FIVE, Color.SPADES),
+                                  Card(Value.TWO, Color.DIAMONDS)]
+    assert player.compute_player_score(game_table) == 2
 
 
 def mock_compute_player_score(self, table):

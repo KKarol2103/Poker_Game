@@ -1,7 +1,6 @@
 from table import Table
 from card import Card, Color, Value
 from typing import List, Tuple
-import random
 
 
 class Player:
@@ -69,8 +68,12 @@ class Player:
         for i in range(len(all_cards) - 4):
             straight = True
             for j in range(4):
-                # TODO refactor it later
-                if all_cards[i + j][1].value[0] + 1 != all_cards[i + j + 1][1].value[0]:
+                # Checking next four cards
+                current_card = all_cards[i + j]
+                next_card = all_cards[i + j + 1]
+                current_card_value = current_card[1].value[0]
+                next_card_value = next_card[1].value[0]
+                if current_card_value + 1 != next_card_value:
                     straight = False
                     break
         return straight
@@ -108,11 +111,15 @@ class Player:
         if 3 in cards_values_dict.values() and 2 in cards_values_dict.values():
             player_points.append(6)
 
-        if list(cards_values_dict.values()).count(2) == 2:
+        if list(cards_values_dict.values()).count(2) >= 2:
             player_points.append(2)
 
         if is_straight and same_colors:
-            player_points.append(9)
+            values_needded_for_royal_flush = [Value.ACE, Value.KING, Value.QUEEN, Value.JACK, Value.TEN]
+            all_royal_values_available = all(val in cards_values_dict.keys() for val in values_needded_for_royal_flush)
+            if all_royal_values_available:
+                player_points.append(9)
+            player_points.append(8)
 
         if not player_points:
             return 0
