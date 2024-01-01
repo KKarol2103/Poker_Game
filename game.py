@@ -113,30 +113,55 @@ class Game:
     def check_only_one_player_left(self) -> bool:
         return sum(player.is_active for player in self._players_in_game) == 1
 
+    def assign_bets_to_big_blind_and_small_blind(self) -> Tuple[str, str]:
+        dealer = self._players_in_game[0]
+        small_blind_player = self._players_in_game[1]
+        big_blind_player = self._players_in_game[2]
+        small_blind_player.make_raise(self._game_table, 10)
+        big_blind_player.make_raise(self._game_table, 20)
+        dealer.name += " D "
+        small_blind_player.name += " SB "
+        big_blind_player.name += " BB "
+
+        return (small_blind_player.name, big_blind_player.name)
+
     def conduct_betting_round(self) -> None:
+        if self._round == 1:
+            small_blind, big_blind = self.assign_bets_to_big_blind_and_small_blind()
+            print(f"Small Blind Player - {small_blind} Raises by: 10")
+            print(f"Big Blind Player - {big_blind} Raises by 20")
+            time.sleep(3)
         raise_made = True
+        encirclement = 0
         while (raise_made):
             raise_made = False
-            for player in (self._players_in_game):
+            for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
                 print(current_player.name)
+                if self._round == 1 and index < 3 and encirclement == 0:
+                    raise_made = True
+                    continue
+
                 if current_player.is_active:
                     if isinstance(current_player, AIPlayer):
                         print("AI thinks...")
-                        choice = self.player_decide_what_to_do(current_player)
                     else:
                         print(30 * "-")
                         print(self._game_table)
                         print("Your Cards: ")
                         current_player.show_player_hole_cards()
-                        choice = self.player_decide_what_to_do(current_player)
+                        print(f"Your in game chips: {current_player.in_game_chips}")
+
+                    choice = self.player_decide_what_to_do(current_player)
                     print(30 * "-")
 
                     if choice == 4:
                         raise_made = True
 
                     time.sleep(3)
+
+            encirclement += 1
 
             if self.check_only_one_player_left():
                 break
@@ -148,21 +173,18 @@ class Game:
 
     def play(self):
         running = True
-
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
-        self._game_deck.tass_cards()
         player_name, player_chips = self.get_basic_user_data()
         new_player = Player(0, player_name, player_chips)
         no_opponents = int(input("How many opponents do you want to have: "))
         self._players_in_game.append(new_player)
-
         # TODO to improve later - add external function
         for i in range(no_opponents):
             self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 5000))
-
         while (running):
             self.mark_all_players_as_active()
+            self._game_deck.tass_cards()
             self.draw_the_order_of_players()
             self.deal_the_cards()
             print("Your Cards: ")
@@ -182,9 +204,13 @@ class Game:
                 self.conduct_betting_round()
 
             print("Time to showdown!")
+            time.sleep(2)
             winner, score = self.get_winner()
-            print(f'And the winner is: ... {winner.name} with result {score}')
+            print('And the winner is: ...')
+            time.sleep(3)
+            print(f"{winner.name} ! with result {score}'")
             print("His Cards Were: ")
+            time.sleep(1)
             winner.show_player_hole_cards()
             winner.chips += self._game_table.stake
             print(f"Your current chips status: {new_player.chips}")

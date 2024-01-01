@@ -127,6 +127,8 @@ class Player:
         self._in_game_chips += needs_to_put
         self._chips -= needs_to_put
 
+        game_table.stake += needs_to_put
+
     def make_raise(self, game_table: Table, amount: int) -> None:
         if self._chips - amount < 0:
             raise ValueError("You don't have enough chips to raise")
@@ -155,8 +157,10 @@ class AIPlayer(Player):
         cards_on_the_table = len(game_table.community_cards)
         strong_hand = 3  # Assume that three of a kind is a very good situation
         # TODO to change it later
-        if not cards_on_the_table:
-            return random.randint(1, 3)
+        if not cards_on_the_table and game_table.current_rate == self._in_game_chips:
+            return 3  # CHECK
+        elif not cards_on_the_table:
+            return 2
 
         is_strong = hand_strength >= strong_hand
 
