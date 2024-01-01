@@ -1,8 +1,7 @@
-from player import Player
 from table import Table
 import random
 from card import Card, Color, Value
-from typing import Tuple, List
+from typing import List
 
 
 class Deck:
@@ -20,8 +19,7 @@ class Deck:
                 new_deck.append(Card(value, color))
         return new_deck
 
-    def tass_cards(self) -> None:
-        # TODO change this method later
+    def shuffle_cards(self) -> None:
         random.shuffle(self._cards_in_game)
 
     def draw_player_hole_cards(self) -> List[Card]:

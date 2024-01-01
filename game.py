@@ -45,6 +45,12 @@ class Game:
         player_chips = input("Please enter how many chips you want to have: ")
         return player_name, int(player_chips)
 
+    def create_opponents(self) -> None:
+        no_opponents = int(input("How many opponents do you want to have: "))
+        opponents_chips = int(input("How many chips shouuld opponents have: "))
+        for i in range(no_opponents):
+            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", opponents_chips))
+
     def draw_the_order_of_players(self) -> None:
         no_all_players_in_game = len(self._players_in_game)
         unique_numbers = random.sample(range(1, no_all_players_in_game + 1), no_all_players_in_game)
@@ -192,14 +198,11 @@ class Game:
         print("Let The Game Begin!")
         player_name, player_chips = self.get_basic_user_data()
         new_player = Player(0, player_name, player_chips)
-        no_opponents = int(input("How many opponents do you want to have: "))
         self._players_in_game.append(new_player)
-        # TODO to improve later - add external function
-        for i in range(no_opponents):
-            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", 5000))
+        self.create_opponents()
         while (running):
             self.mark_all_players_as_active()
-            self._game_deck.tass_cards()
+            self._game_deck.shuffle_cards()
             self.draw_the_order_of_players()
             self.deal_the_cards()
             print("Your Cards: ")
@@ -207,6 +210,10 @@ class Game:
 
             for self._round in range(1, 5):
                 print(f'Round: {self.get_current_round_name()}')
+                only_one_left = self.check_only_one_player_left()
+                if only_one_left:
+                    print("Only One Player Left")
+                    break
                 print(30 * "-")
                 time.sleep(3)
                 self._game_deck.put_cards_on_the_table(self._round, self._game_table)

@@ -46,7 +46,7 @@ def test_init_cards_used_in_game():
 def test_shuffle_cards():
     play_deck = Deck()
     before_shuffle = copy.copy(play_deck.cards_in_game)
-    play_deck.tass_cards()
+    play_deck.shuffle_cards()
     after = play_deck.cards_in_game
     assert before_shuffle != after
 
