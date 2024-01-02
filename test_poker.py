@@ -383,6 +383,23 @@ def test_player_makes_raise_2():
     assert player._in_game_chips == table.current_rate
 
 
+def test_player_makes_raise_when_current_rate_bigger_than_in_game_chips():
+    player = Player(chips=350)
+    table = Table()
+    player.in_game_chips = 50
+    table.current_rate = 100
+    raise_amount = 25
+    table.stake = 300
+
+    player.make_raise(table, raise_amount)
+
+    assert table.current_rate == 200 + raise_amount
+    assert table.stake == 300 + raise_amount
+
+    # assert player._chips == initial_chips - raise_amount
+    assert player._in_game_chips == table.current_rate
+
+
 def test_player_makes_raise_with_insufficient_chips():
     player = Player(chips=1000)
     table = Table()
@@ -409,7 +426,7 @@ def test_check_if_all_players_matched():
 
 
 def test_aiplayer_raise():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
     game_table = Table()
     game_table.community_cards = []
     game_table.current_rate = 100
@@ -419,7 +436,7 @@ def test_aiplayer_raise():
 
 
 def test_aiplayer_how_much_to_raise_very_strong_hand():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
     game_table = Table()
     game_table.current_rate = 100
     game_table.stake = 250
@@ -428,7 +445,7 @@ def test_aiplayer_how_much_to_raise_very_strong_hand():
 
 
 def test_aiplayer_how_much_to_raise_stake_bigger_than_chips():
-    ai_player = AIPlayer("AIPlayer", chips=100)
+    ai_player = AIPlayer(name="AIPlayer", chips=100)
     game_table = Table()
     game_table.current_rate = 100
     game_table.stake = 250
@@ -437,7 +454,7 @@ def test_aiplayer_how_much_to_raise_stake_bigger_than_chips():
 
 
 def test_aiplayer_how_much_to_raise_medium_hand():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
     game_table = Table()
     game_table.current_rate = 100
     game_table.stake = 250
@@ -446,14 +463,14 @@ def test_aiplayer_how_much_to_raise_medium_hand():
 
 
 def test_aiplayer_raise_first_round():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
     game_table = Table()
     ai_player.hole_cards = [Card(Value.TWO, Color.CLUBS), Card(Value.TWO, Color.DIAMONDS)]
     assert ai_player.decide_what_to_do(game_table) == 4
 
 
 def test_aiplayer_call():
-    ai_player = AIPlayer("AIPlayer", chips=100)
+    ai_player = AIPlayer(name="AIPlayer", chips=100)
     game_table = Table()
     game_table.community_cards = []
     game_table.current_rate = 100
@@ -463,7 +480,7 @@ def test_aiplayer_call():
 
 
 def test_aiplayer_check():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
 
     game_table = Table()
     game_table.community_cards = []
@@ -474,7 +491,7 @@ def test_aiplayer_check():
 
 
 def test_aiplayer_check_strong_hand_equal_chips_to_current_rate():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
 
     game_table = Table()
     ai_player.hole_cards = [Card(Value.ACE, Color.DIAMONDS), Card(Value.TEN, Color.HEARTS)]
@@ -485,7 +502,7 @@ def test_aiplayer_check_strong_hand_equal_chips_to_current_rate():
 
 
 def test_aiplayer_fold():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
 
     game_table = Table()
     game_table.community_cards = []
@@ -496,7 +513,7 @@ def test_aiplayer_fold():
 
 
 def test_ai_player_not_enough_chips_to_play():
-    ai_player = AIPlayer("AIPlayer", chips=1000)
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
     game_table = Table()
     game_table.community_cards = []
     game_table.current_rate = 2000

@@ -6,10 +6,10 @@ import random
 
 
 class Player:
-    def __init__(self, player_num: int = None, name: str = "", chips: int = 0) -> None:
+    def __init__(self, player_num: int = 0, name: str = "", chips: int = 0) -> None:
         if player_num < 0:
             raise ValueError("Player num cannot be negative")
-        if chips <= 0:
+        if chips < 0:
             raise ValueError("Chips number must be positive")
         self._player_num = player_num
         self._name = name
@@ -189,7 +189,7 @@ class AIPlayer(Player):
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
         strong_hand = 2  # Good Situation - double pair
-        bluff_chance = 0.1
+        bluff_chance = 0.2
         #  ROUND 1
         first_round = not cards_on_the_table
         if first_round:
@@ -208,17 +208,18 @@ class AIPlayer(Player):
                 return 3
             if game_table.current_rate == self._chips and self._in_game_chips < game_table.current_rate:
                 return 2
+            return 1
 
         if random.random() < bluff_chance:
-            return 4  # RAISE (blef)
+            return 4  # RAISE (blef) - bot udaje ze ma silna reke
 
-        if cards_on_the_table == 3 and hand_strength >= 0:
-            if game_table.current_rate == self._in_game_chips:
+        if cards_on_the_table == 3:
+            if game_table.current_rate == self._in_game_chips and game_table.current_rate < self._chips:
                 return 3  # CHECK
             return 2  # CALL
 
-        if cards_on_the_table > 3 and hand_strength == 0:
-            return 1  # FOLD
+        # if cards_on_the_table > 3 and hand_strength == 0:
+        #     return 1  # FOLD
 
         return 1  # FOLD
 

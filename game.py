@@ -48,9 +48,9 @@ class Game:
         player_chips = input("Please enter how many chips you want to have: ")
         return player_name, int(player_chips)
 
-    def create_opponents(self) -> None:
+    def create_opponents(self, player_chips: int) -> None:
         no_opponents = int(input("How many opponents do you want to have: "))
-        opponents_chips = int(input("How many chips should opponents have: "))
+        opponents_chips = player_chips
         if no_opponents <= 0 or opponents_chips < 30:
             raise InvalidInputData
         for i in range(no_opponents):
@@ -159,6 +159,7 @@ class Game:
                 current_player = self.get_current_player()
                 print(30 * "-")
                 print(current_player.name)
+                print(current_player.chips)
                 if self._round == 1 and index < 3 and not encirlcment:
                     raise_made = True
                     continue
@@ -217,7 +218,7 @@ class Game:
             player_name, player_chips = self.get_basic_user_data()
             new_player = Player(0, player_name, player_chips)
             self._players_in_game.append(new_player)
-            self.create_opponents()
+            self.create_opponents(player_chips)
         except ValueError:
             print("Invalid Data given")
             return
