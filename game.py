@@ -3,7 +3,7 @@ from table import Table
 from deck import Deck
 from poker_errors import (SinglePlayerWantsToFoldError, InvalidActionError,
                           NotEnoughChipsToPlayError, InvalidAmountCheckError,
-                          InvalidInputData)
+                          InvalidInputData, TooLowRaiseError)
 from typing import List, Tuple
 import random
 import time
@@ -75,6 +75,7 @@ class Game:
         return player_with_max_score, score_dict[player_with_max_score]
 
     def get_current_player(self) -> Player:
+        print("Moving queue")
         player = self._players_in_game.pop(0)
         self._players_in_game.append(player)
         return player
@@ -183,6 +184,10 @@ class Game:
                             continue
                         except InvalidAmountCheckError:
                             print("To check your in_game chips must be equal to current rate!")
+                            print("Try Again")
+                            continue
+                        except TooLowRaiseError:
+                            print("Too low raise amount. It has to be equal or bigger than current rate!")
                             print("Try Again")
                             continue
                         except NotEnoughChipsToPlayError:
