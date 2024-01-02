@@ -95,7 +95,8 @@ class Game:
             player.check(self._game_table)
         elif choice == 4:
             if isinstance(player, AIPlayer):
-                amount = player.decide_how_much_to_raise(self._game_table)
+                hand_strength = player.compute_player_score(self._game_table)
+                amount = player.decide_how_much_to_raise(hand_strength, self._game_table)
             else:
                 amount = int(input("Raise Amount: "))
             print(f"Player Raises by {amount}")
@@ -109,9 +110,10 @@ class Game:
         for player in self._players_in_game:
             player.hole_cards = self._game_deck.draw_player_hole_cards()
 
-    def mark_all_players_as_active(self) -> None:
+    def reset_players(self) -> None:
         for player in self._players_in_game:
             player.is_active = True
+            player.in_game_chips = 0
 
     def check_all_players_matched(self) -> bool:
         return all(player.in_game_chips == self._game_table.current_rate or not player.is_active for player in self._players_in_game)
@@ -119,7 +121,7 @@ class Game:
     def check_only_one_player_left(self) -> bool:
         return sum(player.is_active for player in self._players_in_game) == 1
 
-    def assign_bets_to_big_blind_and_small_blind(self) -> Tuple[str, str]:
+    def assign_bets_to_big_blind_and_small_blind(self) -> Tuple[Player, Player]:
         dealer = self._players_in_game[0]
         small_blind_player = self._players_in_game[1]
         big_blind_player = self._players_in_game[2]
@@ -129,24 +131,27 @@ class Game:
         small_blind_player.name += " SB "
         big_blind_player.name += " BB "
 
-        return (small_blind_player.name, big_blind_player.name)
+        return small_blind_player, big_blind_player
 
     def conduct_betting_round(self) -> None:
+        last_raiser = None
         if self._round == 1:
             small_blind, big_blind = self.assign_bets_to_big_blind_and_small_blind()
-            print(f"Small Blind Player - {small_blind} Raises by: 10")
-            print(f"Big Blind Player - {big_blind} Raises by: 20")
+            print(f"Small Blind Player - {small_blind.name} Raises by: 10")
+            print(f"Big Blind Player - {big_blind.name} Raises by: 20")
+            last_raiser = big_blind
             time.sleep(3)
+
         raise_made = True
-        last_raiser = None
-        dealer_played = False
+        encirlcment = 0
         while (raise_made):
             raise_made = False
             for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
                 print(current_player.name)
-                if self._round == 1 and index < 3 and not dealer_played:
+                if self._round == 1 and index < 3 and not encirlcment:
+                    raise_made = True
                     continue
 
                 if current_player.is_active:
@@ -159,7 +164,14 @@ class Game:
                         current_player.show_player_hole_cards()
                         print(f"Your in game chips: {current_player.in_game_chips}")
 
-                    choice = self.player_decide_what_to_do(current_player)
+                    decided = False
+                    while (not decided):
+                        try:
+                            choice = self.player_decide_what_to_do(current_player)
+                        except ValueError:
+                            print("\nInvalid Option! Try Again\n")
+                            continue
+                        decided = True
                     print(30 * "-")
 
                     if choice == 4:
@@ -170,27 +182,13 @@ class Game:
                         break
 
                     time.sleep(3)
-
-            if self._round == 1 and not dealer_played:
-                dealer_played = True
-                dealer = self._players_in_game[0]
-                print(30 * "-")
-                print(dealer.name)
-                choice = self.player_decide_what_to_do(dealer)
-                print(30 * "-")
-
-                if choice == 4:
-                    raise_made = True
-
-                time.sleep(3)
+            encirlcment += 1
 
             if self.check_only_one_player_left():
                 break
 
             if not raise_made and self.check_all_players_matched():
                 break
-
-            time.sleep(3)
 
     def play(self):
         running = True
@@ -201,7 +199,6 @@ class Game:
         self._players_in_game.append(new_player)
         self.create_opponents()
         while (running):
-            self.mark_all_players_as_active()
             self._game_deck.shuffle_cards()
             self.draw_the_order_of_players()
             self.deal_the_cards()
@@ -239,6 +236,11 @@ class Game:
             decision = input("Would You Like to Play Again? [Y/N]: ")
             if decision == "N":
                 running = False
+            else:
+                self._game_deck = Deck()
+                self._game_table = Table()
+                self._round: int = 1
+                self.reset_players()
             print(" ")
         print("See You Soon!")
 

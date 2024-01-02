@@ -172,23 +172,31 @@ class Player:
 class AIPlayer(Player):
 
     def decide_what_to_do(self, game_table: Table) -> int:
+        if self._chips < game_table.current_rate:
+            return 1  # FOLD
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
-        strong_hand = 3  # Assume that three of a kind is a very good situation
-        # TODO to change it later
-        if not cards_on_the_table and game_table.current_rate == self._in_game_chips:
+        strong_hand = 2  # Good Situation - double pair
+        #  ROUND 1
+        first_round = not cards_on_the_table
+        if first_round and hand_strength >= 1:
+            return 4  # RAISE
+        if first_round and game_table.current_rate == self._in_game_chips:
             return 3  # CHECK
-        elif not cards_on_the_table:
+        elif first_round:
             return 2
 
         is_strong = hand_strength >= strong_hand
 
-        if is_strong and game_table.current_rate < self._chips:
-            return 4  # RAISE
-        elif is_strong and game_table.current_rate == self._chips:
-            return 2  # CALL
+        if is_strong:
+            if game_table.current_rate < self._chips:
+                return 4
+            if game_table.current_rate == self._chips and self._in_game_chips == game_table.current_rate:
+                return 3
+            if game_table.current_rate == self._chips and self._in_game_chips < game_table.current_rate:
+                return 2
 
-        if cards_on_the_table == 3 and hand_strength == 0:
+        if cards_on_the_table == 3 and hand_strength >= 0:
             if game_table.current_rate == self._in_game_chips:
                 return 3  # CHECK
             return 2  # CALL
@@ -198,5 +206,14 @@ class AIPlayer(Player):
 
         return 1  # FOLD
 
-    def decide_how_much_to_raise(self, game_table: Table) -> int:
-        return self._chips // 4
+    def decide_how_much_to_raise(self, hand_strength: int, game_table: Table) -> int:
+        to_raise = 0
+        if hand_strength >= 4:
+            to_raise = int(game_table.stake * 0.8)
+        else:
+            to_raise = game_table.stake // 4
+
+        return min(to_raise, self._chips)
+
+    def bluff(self) -> bool:
+        pass
