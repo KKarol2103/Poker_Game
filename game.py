@@ -75,7 +75,6 @@ class Game:
         return player_with_max_score, score_dict[player_with_max_score]
 
     def get_current_player(self) -> Player:
-        print("Moving queue")
         player = self._players_in_game.pop(0)
         self._players_in_game.append(player)
         return player
@@ -203,6 +202,7 @@ class Game:
                         last_raiser = current_player
                         raise_made = True
                     elif last_raiser == current_player:
+                        self._players_in_game.sort(key=lambda player: player.player_num)
                         raise_made = False
                         break
 
