@@ -3,7 +3,7 @@ from table import Table
 from deck import Deck
 from player import Player, AIPlayer
 from game import Game
-from poker_errors import NotEnoughChipsToPlayError, InvalidActionError, InvalidAmountCheckError
+from poker_errors import NotEnoughChipsToPlayError, InvalidActionError, InvalidAmountCheckError, TooLowRaiseError
 import copy
 import random
 import pytest
@@ -369,35 +369,45 @@ def test_player_make_raise():
 def test_player_makes_raise_2():
     player = Player(chips=1000)
     table = Table()
-    initial_chips = player._chips
-    raise_amount = 100
+    raise_amount = 300
     table.current_rate = 200
     table.stake = 300
 
     player.make_raise(table, raise_amount)
 
-    assert table.current_rate == 200 + raise_amount
-    assert table.stake == 300 + raise_amount
+    assert table.current_rate == 300
+    assert table.stake == 600
 
-    assert player._chips == initial_chips - raise_amount
-    assert player._in_game_chips == table.current_rate
+    assert player._chips == 700
+    assert player._in_game_chips == 300
+
+
+def test_player_makes_raise_but_ammount_is_too_low():
+    player = Player(chips=1000)
+    table = Table()
+    raise_amount = 29
+    table.current_rate = 40
+    table.stake = 100
+
+    with pytest.raises(TooLowRaiseError):
+        player.make_raise(table, raise_amount)
 
 
 def test_player_makes_raise_when_current_rate_bigger_than_in_game_chips():
-    player = Player(chips=350)
+    player = Player(chips=560)
     table = Table()
-    player.in_game_chips = 50
-    table.current_rate = 100
-    raise_amount = 25
-    table.stake = 300
+    player.in_game_chips = 8
+    table.current_rate = 16
+    raise_amount = 16
+    table.stake = 48
 
     player.make_raise(table, raise_amount)
 
-    assert table.current_rate == 200 + raise_amount
-    assert table.stake == 300 + raise_amount
+    assert table.current_rate == 24
+    assert table.stake == 64
 
-    # assert player._chips == initial_chips - raise_amount
-    assert player._in_game_chips == table.current_rate
+    assert player._chips == 544
+    assert player._in_game_chips == 24
 
 
 def test_player_makes_raise_with_insufficient_chips():

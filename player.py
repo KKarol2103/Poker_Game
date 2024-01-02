@@ -1,6 +1,6 @@
 from table import Table
 from card import Card, Color, Value
-from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError
+from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError, TooLowRaiseError
 from typing import List, Tuple
 import random
 
@@ -163,7 +163,9 @@ class Player:
     def make_raise(self, game_table: Table, amount: int) -> None:
         if self._chips - amount < 0:
             raise NotEnoughChipsToPlayError
-        self._in_game_chips = game_table.current_rate + amount
+        if amount < game_table.current_rate:
+            raise TooLowRaiseError
+        self._in_game_chips += amount
         self._chips -= amount
 
         game_table.current_rate = self._in_game_chips
