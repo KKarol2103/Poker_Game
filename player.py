@@ -1,10 +1,16 @@
 from table import Table
 from card import Card, Color, Value
+from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError
 from typing import List, Tuple
+import random
 
 
 class Player:
     def __init__(self, player_num: int = None, name: str = "", chips: int = 0) -> None:
+        if player_num < 0:
+            raise ValueError("Player num cannot be negative")
+        if chips <= 0:
+            raise ValueError("Chips number must be positive")
         self._player_num = player_num
         self._name = name
         self._chips = chips
@@ -18,6 +24,8 @@ class Player:
 
     @player_num.setter
     def player_num(self, value):
+        if value < 0:
+            raise ValueError("Player number cannot be negative")
         self._player_num = value
 
     @property
@@ -34,6 +42,8 @@ class Player:
 
     @chips.setter
     def chips(self, value):
+        if value <= 0:
+            raise ValueError("Chips number must be positive")
         self._chips = value
 
     @property
@@ -143,6 +153,8 @@ class Player:
 
     def call(self, game_table: Table) -> None:
         needs_to_put = game_table.current_rate - self._in_game_chips
+        if needs_to_put < 0:
+            raise NotEnoughChipsToPlayError
         self._in_game_chips += needs_to_put
         self._chips -= needs_to_put
 
@@ -150,7 +162,7 @@ class Player:
 
     def make_raise(self, game_table: Table, amount: int) -> None:
         if self._chips - amount < 0:
-            raise ValueError("You don't have enough chips to raise")
+            raise NotEnoughChipsToPlayError
         self._in_game_chips = game_table.current_rate + amount
         self._chips -= amount
 
@@ -159,7 +171,7 @@ class Player:
 
     def check(self, game_table: Table) -> None:
         if game_table.current_rate != self._in_game_chips:
-            raise ValueError("Cannot check when rate is bigger")
+            raise InvalidAmountCheckError
 
     def show_player_hole_cards(self) -> None:
         cards = ""
@@ -177,24 +189,28 @@ class AIPlayer(Player):
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
         strong_hand = 2  # Good Situation - double pair
+        bluff_chance = 0.1
         #  ROUND 1
         first_round = not cards_on_the_table
-        if first_round and hand_strength >= 1:
-            return 4  # RAISE
-        if first_round and game_table.current_rate == self._in_game_chips:
-            return 3  # CHECK
-        elif first_round:
+        if first_round:
+            if hand_strength >= 1:
+                return 4  # RAISE
+            if game_table.current_rate == self._in_game_chips:
+                return 3
             return 2
 
         is_strong = hand_strength >= strong_hand
 
         if is_strong:
-            if game_table.current_rate < self._chips:
+            if game_table.current_rate < self._chips and random.random() < 0.7:
                 return 4
             if game_table.current_rate == self._chips and self._in_game_chips == game_table.current_rate:
                 return 3
             if game_table.current_rate == self._chips and self._in_game_chips < game_table.current_rate:
                 return 2
+
+        if random.random() < bluff_chance:
+            return 4  # RAISE (blef)
 
         if cards_on_the_table == 3 and hand_strength >= 0:
             if game_table.current_rate == self._in_game_chips:

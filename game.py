@@ -1,6 +1,9 @@
 from player import Player, AIPlayer
 from table import Table
 from deck import Deck
+from poker_errors import (SinglePlayerWantsToFoldError, InvalidActionError,
+                          NotEnoughChipsToPlayError, InvalidAmountCheckError,
+                          InvalidInputData)
 from typing import List, Tuple
 import random
 import time
@@ -47,7 +50,9 @@ class Game:
 
     def create_opponents(self) -> None:
         no_opponents = int(input("How many opponents do you want to have: "))
-        opponents_chips = int(input("How many chips shouuld opponents have: "))
+        opponents_chips = int(input("How many chips should opponents have: "))
+        if no_opponents <= 0 or opponents_chips < 30:
+            raise InvalidInputData
         for i in range(no_opponents):
             self._players_in_game.append(AIPlayer(i + 1, f"random{i}", opponents_chips))
 
@@ -85,6 +90,8 @@ class Game:
             print("4. Raise")
             choice = int(input("Decide What to do: "))
         if choice == 1:
+            if self.check_only_one_player_left() == 1:
+                raise SinglePlayerWantsToFoldError
             print("Player Folds")
             player.fold()
         elif choice == 2:
@@ -102,7 +109,7 @@ class Game:
             print(f"Player Raises by {amount}")
             player.make_raise(self._game_table, amount)
         else:
-            raise ValueError("Incorrect Choice!")
+            raise InvalidActionError
 
         return choice
 
@@ -111,9 +118,11 @@ class Game:
             player.hole_cards = self._game_deck.draw_player_hole_cards()
 
     def reset_players(self) -> None:
-        for player in self._players_in_game:
+        for index, player in enumerate(self._players_in_game):
             player.is_active = True
             player.in_game_chips = 0
+            if index < 3:
+                player.name = player.name[:-3]
 
     def check_all_players_matched(self) -> bool:
         return all(player.in_game_chips == self._game_table.current_rate or not player.is_active for player in self._players_in_game)
@@ -168,9 +177,19 @@ class Game:
                     while (not decided):
                         try:
                             choice = self.player_decide_what_to_do(current_player)
-                        except ValueError:
+                        except InvalidActionError:
                             print("\nInvalid Option! Try Again\n")
                             continue
+                        except InvalidAmountCheckError:
+                            print("To check your in_game chips must be equal to current rate!")
+                            print("Try Again")
+                            continue
+                        except NotEnoughChipsToPlayError:
+                            print("You don't have enough chips to do that!")
+                            print("Choose other Action")
+                            continue
+                        except SinglePlayerWantsToFoldError:
+                            print("It is not possible for one player to fold")
                         decided = True
                     print(30 * "-")
 
@@ -194,10 +213,17 @@ class Game:
         running = True
         print("Welcome to the Texas hold'em game!")
         print("Let The Game Begin!")
-        player_name, player_chips = self.get_basic_user_data()
-        new_player = Player(0, player_name, player_chips)
-        self._players_in_game.append(new_player)
-        self.create_opponents()
+        try:
+            player_name, player_chips = self.get_basic_user_data()
+            new_player = Player(0, player_name, player_chips)
+            self._players_in_game.append(new_player)
+            self.create_opponents()
+        except ValueError:
+            print("Invalid Data given")
+            return
+        except InvalidInputData:
+            print("Invalid Oponnents Data given")
+            return
         while (running):
             self._game_deck.shuffle_cards()
             self.draw_the_order_of_players()
@@ -227,7 +253,7 @@ class Game:
             winner, score = self.get_winner()
             print('And the winner is: ...')
             time.sleep(3)
-            print(f"{winner.name} ! with result {score}'")
+            print(f"{winner.name} ! with result {score}")
             print("His Cards Were: ")
             time.sleep(1)
             winner.show_player_hole_cards()

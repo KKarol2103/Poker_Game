@@ -3,6 +3,7 @@ from table import Table
 from deck import Deck
 from player import Player, AIPlayer
 from game import Game
+from poker_errors import NotEnoughChipsToPlayError, InvalidActionError, InvalidAmountCheckError
 import copy
 import random
 import pytest
@@ -347,7 +348,7 @@ def test_attempt_to_check_when_rate_is_bigger_than_player_chips():
     game._game_table.stake = 1400
     normal_player._chips = 500
     normal_player._in_game_chips = 200
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidAmountCheckError):
         normal_player.check(game._game_table)
 
 
@@ -390,7 +391,7 @@ def test_player_makes_raise_with_insufficient_chips():
     table.current_rate = 200
     table.stake = 300
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NotEnoughChipsToPlayError):
         player.make_raise(table, raise_amount)
 
 
