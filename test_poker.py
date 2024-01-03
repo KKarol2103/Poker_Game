@@ -539,3 +539,12 @@ def test_ai_player_not_enough_chips_to_play():
     game_table.current_rate = 2000
     assert ai_player.decide_what_to_do(game_table) == 1
 
+
+def test_ai_player_how_much_to_raise():
+    ai_player = AIPlayer(name="AIPlayer", chips=1000)
+    game_table = Table()
+    ai_player.in_game_chips = 100
+    game_table.current_rate = 250
+    game_table.stake = 400
+    how_much = ai_player.decide_how_much_to_raise(4, game_table)
+    assert how_much == 150 + 320
