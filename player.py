@@ -1,18 +1,15 @@
 from table import Table
-from card import Card, Color, Value
-from functools import reduce
+from card import Card, Value
 from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError, TooLowRaiseError
-from typing import List, Tuple
+from typing import List
 import random
 
 
 class Player:
-    def __init__(self, player_num: int = 0, name: str = "", chips: int = 0) -> None:
-        if player_num < 0:
-            raise ValueError("Player num cannot be negative")
+    def __init__(self, name: str = "", chips: int = 0) -> None:
         if chips < 0:
             raise ValueError("Chips number must be positive")
-        self._player_num = player_num
+        self._player_num: int = 0
         self._name = name
         self._chips = chips
         self._in_game_chips: int = 0
@@ -73,7 +70,7 @@ class Player:
     def is_active(self, value):
         self._is_active = value
 
-    def check_for_wheel_straight(self, last_card_val: int, all_cards_val: List[int]) -> bool:
+    def check_wheel_straight(self, last_card_val: int, all_cards_val: List[int]) -> bool:
         cards_if_ace_was_on_the_front = all_cards_val[:4]
         cards_if_ace_was_on_the_front.insert(0, last_card_val)
         card_numbers = [card for card in all_cards_val]
@@ -96,7 +93,7 @@ class Player:
 
         last_card = all_cards_values[-1]
         if not straight and last_card == 14:
-            straight = self.check_for_wheel_straight(last_card, all_cards_values)
+            straight = self.check_wheel_straight(last_card, all_cards_values)
         return straight
 
     def compute_player_score(self, game_table: Table) -> int:
@@ -174,12 +171,16 @@ class Player:
         if game_table.current_rate != self._in_game_chips:
             raise InvalidAmountCheckError
 
-    def show_player_hole_cards(self) -> None:
+    def show_player_hole_cards(self) -> str:
         cards = ""
         for card in self._hole_cards:
             cards += str(card)
             cards += " "
         print(cards)
+        return cards
+
+    def __str__(self) -> str:
+        pass
 
 
 class AIPlayer(Player):

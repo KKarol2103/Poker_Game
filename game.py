@@ -54,7 +54,7 @@ class Game:
         if no_opponents <= 0 or opponents_chips < 30:
             raise InvalidInputData
         for i in range(no_opponents):
-            self._players_in_game.append(AIPlayer(i + 1, f"random{i}", opponents_chips))
+            self._players_in_game.append(AIPlayer(f"random{i}", opponents_chips))
 
     def draw_the_order_of_players(self) -> None:
         no_all_players_in_game = len(self._players_in_game)
@@ -90,7 +90,7 @@ class Game:
             print("4. Raise")
             choice = int(input("Decide What to do: "))
         if choice == 1:
-            if self.check_only_one_player_left() == 1:
+            if self.check_one_player_left() == 1:
                 raise SinglePlayerWantsToFoldError
             print("Player Folds")
             player.fold()
@@ -125,12 +125,13 @@ class Game:
                 player.name = player.name[:-3]
 
     def check_all_players_matched(self) -> bool:
-        return all(player.in_game_chips == self._game_table.current_rate or not player.is_active for player in self._players_in_game)
+        return all(player.in_game_chips == self._game_table.current_rate or not player.is_active
+                   for player in self._players_in_game)
 
-    def check_only_one_player_left(self) -> bool:
+    def check_one_player_left(self) -> bool:
         return sum(player.is_active for player in self._players_in_game) == 1
 
-    def assign_bets_to_big_blind_and_small_blind(self) -> Tuple[Player, Player]:
+    def assign_blinds_bets(self) -> Tuple[Player, Player]:
         dealer = self._players_in_game[0]
         small_blind_player = self._players_in_game[1]
         big_blind_player = self._players_in_game[2]
@@ -145,7 +146,7 @@ class Game:
     def conduct_betting_round(self) -> None:
         last_raiser = None
         if self._round == 1:
-            small_blind, big_blind = self.assign_bets_to_big_blind_and_small_blind()
+            small_blind, big_blind = self.assign_blinds_bets()
             print(f"Small Blind Player - {small_blind.name} Raises by: 10")
             print(f"Big Blind Player - {big_blind.name} Raises by: 20")
             last_raiser = big_blind
@@ -158,6 +159,7 @@ class Game:
             for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
+                #  TODO change it here
                 print(current_player.name)
                 print(current_player.chips)
                 if self._round == 1 and index < 3 and not encirlcment:
@@ -209,7 +211,7 @@ class Game:
                     time.sleep(3)
             encirlcment += 1
 
-            if self.check_only_one_player_left():
+            if self.check_one_player_left():
                 break
 
             if not raise_made and self.check_all_players_matched():
@@ -221,7 +223,7 @@ class Game:
         print("Let The Game Begin!")
         try:
             player_name, player_chips = self.get_basic_user_data()
-            new_player = Player(0, player_name, player_chips)
+            new_player = Player(player_name, player_chips)
             self._players_in_game.append(new_player)
             self.create_opponents(player_chips)
         except ValueError:
@@ -235,11 +237,12 @@ class Game:
             self.draw_the_order_of_players()
             self.deal_the_cards()
             print("Your Cards: ")
+            # TODO change it here to str
             new_player.show_player_hole_cards()
 
             for self._round in range(1, 5):
                 print(f'Round: {self.get_current_round_name()}')
-                only_one_left = self.check_only_one_player_left()
+                only_one_left = self.check_one_player_left()
                 if only_one_left:
                     print("Only One Player Left")
                     break

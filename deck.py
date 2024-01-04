@@ -27,7 +27,7 @@ class Deck:
         self._cards_in_game = [card for card in self._cards_in_game if card not in hole_cards]
         return hole_cards
 
-    def take_card_from_deck_and_add_to_com_cards(self, game_table: Table) -> None:
+    def move_to_community_cards(self, game_table: Table) -> None:
         card = self._cards_in_game.pop(0)
         game_table.community_cards.append(card)
 
@@ -36,8 +36,8 @@ class Deck:
             raise ValueError("Wrong round number")
         if current_round == 2:
             for _ in range(3):
-                self.take_card_from_deck_and_add_to_com_cards(game_table)
+                self.move_to_community_cards(game_table)
         if current_round == 3:
-            self.take_card_from_deck_and_add_to_com_cards(game_table)
+            self.move_to_community_cards(game_table)
         if current_round == 4:
-            self.take_card_from_deck_and_add_to_com_cards(game_table)
+            self.move_to_community_cards(game_table)

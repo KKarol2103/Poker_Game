@@ -294,9 +294,9 @@ def test_get_winer(monkeypatch):
     game = Game()
     monkeypatch.setattr(Player, "compute_player_score", mock_compute_player_score)
     monkeypatch.setattr(AIPlayer, "compute_player_score", mock_compute_player_score)
-    normal_player = Player(0, "Gracz")
-    first_ai_player = AIPlayer(1)
-    second_ai_player = AIPlayer(2)
+    normal_player = Player("Gracz")
+    first_ai_player = AIPlayer()
+    second_ai_player = AIPlayer()
     game.players_in_game = [normal_player, first_ai_player, second_ai_player]
     winner, score = game.get_winner()
     assert winner.name == "Gracz"
@@ -305,9 +305,9 @@ def test_get_winer(monkeypatch):
 
 def test_get_current_player():
     game = Game()
-    normal_player = Player(0, "Gracz")
-    first_ai_player = AIPlayer(1)
-    second_ai_player = AIPlayer(2)
+    normal_player = Player("Gracz")
+    first_ai_player = AIPlayer()
+    second_ai_player = AIPlayer()
     game.players_in_game = [normal_player, first_ai_player, second_ai_player]
 
     game.get_current_player()
@@ -320,7 +320,7 @@ def test_get_current_player():
 
 def test_player_call():
     game = Game()
-    normal_player = Player(0, "Gracz")
+    normal_player = Player("Gracz")
     game._game_table.current_rate = 400
     game._game_table.stake = 700
     normal_player._chips = 500
@@ -333,7 +333,7 @@ def test_player_call():
 
 def test_player_check():
     game = Game()
-    normal_player = Player(0, "Gracz")
+    normal_player = Player("Gracz")
     game._game_table.current_rate = 400
     game._game_table.stake = 1400
     normal_player._chips = 500
@@ -343,7 +343,7 @@ def test_player_check():
 
 def test_attempt_to_check_when_rate_is_bigger_than_player_chips():
     game = Game()
-    normal_player = Player(0, "Gracz")
+    normal_player = Player("Gracz")
     game._game_table.current_rate = 400
     game._game_table.stake = 1400
     normal_player._chips = 500
@@ -354,7 +354,7 @@ def test_attempt_to_check_when_rate_is_bigger_than_player_chips():
 
 def test_player_make_raise():
     game = Game()
-    normal_player = Player(0, "Gracz")
+    normal_player = Player("Gracz")
     game._game_table.current_rate = 200
     game._game_table.stake = 300
     normal_player._chips = 500

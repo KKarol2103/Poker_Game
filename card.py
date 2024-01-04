@@ -59,9 +59,6 @@ class Card:
     def __gt__(self, other):
         return self._rank.number > other.rank.number
 
-    # def __eq__(self, other) -> bool:
-    #     return self._value.number == other.value.number
-
     def __repr__(self):
         return f"{self._rank.name} of {self._color.name}"
 
