@@ -198,7 +198,7 @@ class AIPlayer(Player):
         #  ROUND 1
         first_round = not cards_on_the_table
         if first_round:
-            if hand_strength >= 1 and random.random() < 0.4:
+            if can_raise and hand_strength >= 1 and random.random() < 0.4:
                 return 4  # RAISE
             if can_check:
                 return 3  # CHECK
@@ -228,7 +228,7 @@ class AIPlayer(Player):
         to_raise = 0
         to_call = game_table.current_rate - self._in_game_chips
         if hand_strength >= 4:
-            to_raise = int(to_call + (game_table.stake * 0.8))
+            to_raise = (to_call + int(game_table.stake * 0.8))
         else:
             to_raise = to_call + (game_table.stake // 4)
 
