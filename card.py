@@ -41,29 +41,29 @@ class Value(Enum):
 
 
 class Card:
-    def __init__(self, value: Value, color: Color) -> None:
+    def __init__(self, rank: Value, color: Color) -> None:
         self._color = color
-        self._value = value
+        self._rank = rank
 
     @property
     def color(self) -> Color:
         return self._color
 
     @property
-    def value(self) -> Value:
-        return self._value
+    def rank(self) -> Value:
+        return self._rank
 
     def __lt__(self, other):
-        return self._value.number < other.value.number
+        return self._rank.number < other.rank.number
 
     def __gt__(self, other):
-        return self._value.number > other.value.number
+        return self._rank.number > other.rank.number
 
     # def __eq__(self, other) -> bool:
     #     return self._value.number == other.value.number
 
     def __repr__(self):
-        return f"{self._value.name} of {self._color.name}"
+        return f"{self._rank.name} of {self._color.name}"
 
     def __str__(self) -> str:
-        return f"{str(self._value)} {str(self._color)}"
+        return f"{str(self._rank)} {str(self._color)}"

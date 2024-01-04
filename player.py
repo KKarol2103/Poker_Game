@@ -1,5 +1,6 @@
 from table import Table
 from card import Card, Color, Value
+from functools import reduce
 from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError, TooLowRaiseError
 from typing import List, Tuple
 import random
@@ -72,32 +73,30 @@ class Player:
     def is_active(self, value):
         self._is_active = value
 
-    def check_for_wheel_straight(self, last_card: Card, all_cards: List[Tuple[Color, Value]]) -> bool:
-        cards_if_ace_was_on_the_front = all_cards[:4]
-        cards_if_ace_was_on_the_front.insert(0, last_card)
-        card_numbers = [card[1].value[0] for card in all_cards]
+    def check_for_wheel_straight(self, last_card_val: int, all_cards_val: List[int]) -> bool:
+        cards_if_ace_was_on_the_front = all_cards_val[:4]
+        cards_if_ace_was_on_the_front.insert(0, last_card_val)
+        card_numbers = [card for card in all_cards_val]
         if all(val in card_numbers for val in [2, 3, 4, 5]):
             return True
 
-    def check_if_there_is_a_straight(self, all_cards: List[Tuple[Color, Value]]) -> bool:
-        if len(all_cards) <= 4:
+    def check_if_straight(self, all_cards: List[Card]) -> bool:
+        if len(all_cards) < 4:
             return False
-        for i in range(len(all_cards) - 4):
-            straight = True
-            for j in range(4):
-                # Checking next four cards
-                current_card = all_cards[i + j]
-                next_card = all_cards[i + j + 1]
-                current_card_value = current_card[1].value[0]
-                next_card_value = next_card[1].value[0]
-                if current_card_value + 1 != next_card_value:
-                    straight = False
-                    break
+        straight = False
+        all_cards.sort(key=lambda x: x.rank.value[0])
+        all_cards_values = [card.rank.value[0] for card in all_cards]
 
-        last_card = all_cards[-1]
-        last_card_value = last_card[1].value[0]
-        if not straight and last_card_value == 14:
-            straight = self.check_for_wheel_straight(last_card, all_cards)
+        for i in range(len(all_cards_values) - 4):
+            if all_cards_values[i] + 1 == all_cards_values[i + 1] and \
+                all_cards_values[i + 1] + 1 == all_cards_values[i + 2] and \
+                all_cards_values[i + 2] + 1 == all_cards_values[i + 3] and \
+                    all_cards_values[i + 3] + 1 == all_cards_values[i + 4]:
+                straight = True
+
+        last_card = all_cards_values[-1]
+        if not straight and last_card == 14:
+            straight = self.check_for_wheel_straight(last_card, all_cards_values)
         return straight
 
     def compute_player_score(self, game_table: Table) -> int:
@@ -108,10 +107,10 @@ class Player:
         cards_values_dict = {}
         card_colors_dict = {}
 
-        all_cards_values = [(card.color, card.value) for card in player_and_community_cards]
+        all_cards_values = [(card.color, card.rank) for card in player_and_community_cards]
         all_cards_values.sort(key=lambda card_tup: card_tup[1].number)
 
-        is_straight = self.check_if_there_is_a_straight(all_cards_values)
+        is_straight = self.check_if_straight(player_and_community_cards)
         if is_straight:
             player_points.append(4)
 
