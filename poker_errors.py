@@ -26,3 +26,8 @@ class InvalidAmountCheckError(Exception):
 class InvalidInputData(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__("Incorrect data given")
+
+
+class InvalidRoundError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__("Invalid Round")

@@ -3,7 +3,7 @@ from table import Table
 from deck import Deck
 from poker_errors import (SinglePlayerWantsToFoldError, InvalidActionError,
                           NotEnoughChipsToPlayError, InvalidAmountCheckError,
-                          InvalidInputData, TooLowRaiseError)
+                          InvalidInputData, TooLowRaiseError, InvalidRoundError)
 from typing import List, Tuple
 import random
 import time
@@ -41,7 +41,7 @@ class Game:
             return "Turn"
         if self._round == 4:
             return "River"
-        raise ValueError("Incorrect round number")
+        raise InvalidRoundError
 
     def get_basic_user_data(self) -> Tuple[str, int]:
         player_name = input("Please enter your name: ")
