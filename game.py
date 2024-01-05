@@ -70,9 +70,9 @@ class Game:
         self._players_in_game.append(player)
         return player
 
-    def player_decide_what_to_do(self, player: Player) -> int:
+    def player_decide_what_to_do(self, player: Player, no_raises: int) -> int:
         if isinstance(player, AIPlayer):
-            choice = player.decide_what_to_do(self._game_table)
+            choice = player.decide_what_to_do(self._game_table, no_raises)
         else:
             print("Options:")
             print("1. Fold")
@@ -145,12 +145,15 @@ class Game:
 
         raise_made = True
         encirlcment = 0
+        no_raises = 0
         while (raise_made):
             raise_made = False
             for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
                 if current_round == 1 and index < 3 and not encirlcment:
+                    #  During First Round and first encirlcment
+                    #  small and big blind players have already bet
                     print(current_player.name)
                     time.sleep(3)
                     raise_made = True
@@ -166,7 +169,7 @@ class Game:
                     decided = False
                     while (not decided):
                         try:
-                            choice = self.player_decide_what_to_do(current_player)
+                            choice = self.player_decide_what_to_do(current_player, no_raises)
                         except InvalidActionError:
                             print("\nInvalid Option! Try Again\n")
                             continue
@@ -189,6 +192,7 @@ class Game:
 
                     if choice == 4:
                         last_raiser = current_player
+                        no_raises += 1
                         raise_made = True
                     elif last_raiser == current_player:
                         self._players_in_game.sort(key=lambda player: player.player_num)
