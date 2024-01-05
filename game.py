@@ -134,6 +134,32 @@ class Game:
 
         return small_blind_player, big_blind_player
 
+    def get_player_decision(self, player: Player, no_raises: int) -> int:
+        decided = False
+        while (not decided):
+            try:
+                choice = self.player_decide_what_to_do(player, no_raises)
+            except InvalidActionError:
+                print("\nInvalid Option! Try Again\n")
+                continue
+            except InvalidAmountCheckError:
+                print("To check your in_game chips must be equal to current rate!")
+                print("Try Again")
+                continue
+            except TooLowRaiseError:
+                print("Too low raise amount. It has to be equal or bigger than current rate!")
+                print("Try Again")
+                continue
+            except NotEnoughChipsToPlayError:
+                print("You don't have enough chips to do that!")
+                print("Choose other Action")
+                continue
+            except SinglePlayerWantsToFoldError:
+                print("It is not possible for one player to fold")
+                continue
+            decided = True
+        return choice
+
     def conduct_betting_round(self, current_round: int) -> None:
         last_raiser = None
         if current_round == 1:
@@ -160,35 +186,14 @@ class Game:
                     continue
 
                 if current_player.is_active:
-                    if isinstance(current_player, AIPlayer):
-                        print("AI thinks...")
-                    else:
+                    if not isinstance(current_player, AIPlayer):
                         print(self._game_table)
 
                     print(current_player)
-                    decided = False
-                    while (not decided):
-                        try:
-                            choice = self.player_decide_what_to_do(current_player, no_raises)
-                        except InvalidActionError:
-                            print("\nInvalid Option! Try Again\n")
-                            continue
-                        except InvalidAmountCheckError:
-                            print("To check your in_game chips must be equal to current rate!")
-                            print("Try Again")
-                            continue
-                        except TooLowRaiseError:
-                            print("Too low raise amount. It has to be equal or bigger than current rate!")
-                            print("Try Again")
-                            continue
-                        except NotEnoughChipsToPlayError:
-                            print("You don't have enough chips to do that!")
-                            print("Choose other Action")
-                            continue
-                        except SinglePlayerWantsToFoldError:
-                            print("It is not possible for one player to fold")
-                        decided = True
-                    print(30 * "-")
+
+                    # print(30 * "-")
+
+                    choice = self.get_player_decision(current_player, no_raises)
 
                     if choice == 4:
                         last_raiser = current_player
