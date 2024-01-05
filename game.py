@@ -14,7 +14,6 @@ class Game:
         self._players_in_game: List[Player] = []
         self._game_deck = Deck()
         self._game_table = Table()
-        self._round: int = 1
 
     @property
     def players_in_game(self) -> List[Player]:
@@ -24,22 +23,14 @@ class Game:
     def players_in_game(self, value):
         self._players_in_game = value
 
-    @property
-    def round(self) -> int:
-        return self._round
-
-    @round.setter
-    def round(self, value):
-        self._round = value
-
-    def get_current_round_name(self) -> str:
-        if self._round == 1:
+    def get_round_name(self, current_round: int) -> str:
+        if current_round == 1:
             return "Pre-Flop"
-        if self._round == 2:
+        if current_round == 2:
             return "Flop"
-        if self._round == 3:
+        if current_round == 3:
             return "Turn"
-        if self._round == 4:
+        if current_round == 4:
             return "River"
         raise InvalidRoundError
 
@@ -143,9 +134,9 @@ class Game:
 
         return small_blind_player, big_blind_player
 
-    def conduct_betting_round(self) -> None:
+    def conduct_betting_round(self, current_round: int) -> None:
         last_raiser = None
-        if self._round == 1:
+        if current_round == 1:
             small_blind, big_blind = self.assign_blinds_bets()
             print(f"Small Blind Player - {small_blind.name} Raises by: 10")
             print(f"Big Blind Player - {big_blind.name} Raises by: 20")
@@ -162,7 +153,7 @@ class Game:
                 #  TODO change it here
                 print(current_player.name)
                 print(current_player.chips)
-                if self._round == 1 and index < 3 and not encirlcment:
+                if current_round == 1 and index < 3 and not encirlcment:
                     raise_made = True
                     continue
 
@@ -239,23 +230,24 @@ class Game:
             print("Your Cards: ")
             # TODO change it here to str
             new_player.show_player_hole_cards()
+            round = 0
 
-            for self._round in range(1, 5):
-                print(f'Round: {self.get_current_round_name()}')
+            for round in range(1, 5):
+                print(f'Round: {self.get_round_name(round)}')
                 only_one_left = self.check_one_player_left()
                 if only_one_left:
                     print("Only One Player Left")
                     break
                 print(30 * "-")
                 time.sleep(3)
-                self._game_deck.put_cards_on_the_table(self._round, self._game_table)
+                self._game_deck.put_cards_on_the_table(round, self._game_table)
                 print(self._game_table)
                 print("Now it is time for everyone to decide what to do!")
                 print(30 * "-")
                 time.sleep(3)
                 print("Current Player: ")
                 time.sleep(1)
-                self.conduct_betting_round()
+                self.conduct_betting_round(round)
 
             print("Time to showdown!")
             time.sleep(2)
@@ -274,7 +266,6 @@ class Game:
             else:
                 self._game_deck = Deck()
                 self._game_table = Table()
-                self._round: int = 1
                 self.reset_players()
             print(" ")
         print("See You Soon!")
