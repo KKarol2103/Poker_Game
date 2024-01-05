@@ -150,10 +150,9 @@ class Game:
             for index, player in enumerate(self._players_in_game):
                 current_player = self.get_current_player()
                 print(30 * "-")
-                #  TODO change it here
-                print(current_player.name)
-                print(current_player.chips)
                 if current_round == 1 and index < 3 and not encirlcment:
+                    print(current_player.name)
+                    time.sleep(3)
                     raise_made = True
                     continue
 
@@ -161,12 +160,9 @@ class Game:
                     if isinstance(current_player, AIPlayer):
                         print("AI thinks...")
                     else:
-                        print(30 * "-")
                         print(self._game_table)
-                        print("Your Cards: ")
-                        current_player.show_player_hole_cards()
-                        print(f"Your in game chips: {current_player.in_game_chips}")
 
+                    print(current_player)
                     decided = False
                     while (not decided):
                         try:
@@ -228,8 +224,7 @@ class Game:
             self.draw_the_order_of_players()
             self.deal_the_cards()
             print("Your Cards: ")
-            # TODO change it here to str
-            new_player.show_player_hole_cards()
+            print(new_player.player_hole_cards_desc())
             round = 0
 
             for round in range(1, 5):
@@ -254,12 +249,10 @@ class Game:
             winner, score = self.get_winner()
             print('And the winner is: ...')
             time.sleep(3)
-            print(f"{winner.name} ! with result {score}")
-            print("His Cards Were: ")
-            time.sleep(1)
-            winner.show_player_hole_cards()
+            print(winner)
+            print(f"With score: {score}")
             winner.chips += self._game_table.stake
-            print(f"Your current chips status: {new_player.chips}")
+            print(f"Your chips after game : {new_player.chips}")
             decision = input("Would You Like to Play Again? [Y/N]: ")
             if decision == "N":
                 running = False

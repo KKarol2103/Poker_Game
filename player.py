@@ -171,16 +171,21 @@ class Player:
         if game_table.current_rate != self._in_game_chips:
             raise InvalidAmountCheckError
 
-    def show_player_hole_cards(self) -> str:
+    def player_hole_cards_desc(self) -> str:
         cards = ""
         for card in self._hole_cards:
             cards += str(card)
             cards += " "
-        print(cards)
         return cards
 
     def __str__(self) -> str:
-        pass
+        desc = ""
+        desc += (f"{self._name}\n")
+        desc += "Player Hole cards: \n"
+        desc += self.player_hole_cards_desc()
+        desc += f"\nAll Player Chips: {self._chips}\n"
+        desc += f"Player In-Game Chips: {self._in_game_chips}"
+        return desc
 
 
 class AIPlayer(Player):
@@ -233,3 +238,8 @@ class AIPlayer(Player):
             to_raise = to_call + (game_table.stake // 4)
 
         return min(to_raise, self._chips)
+
+    def __str__(self) -> str:
+        desc = ""
+        desc += (f"{self._name}")
+        return desc
