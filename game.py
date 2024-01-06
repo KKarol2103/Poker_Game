@@ -65,10 +65,10 @@ class Game:
         player_with_max_score = max(score_dict, key=score_dict.get)
         return player_with_max_score, score_dict[player_with_max_score]
 
-    def get_current_player(self) -> Player:
-        player = self._players_in_game.pop(0)
-        self._players_in_game.append(player)
-        return player
+    def get_player_and_move_to_served(self, un_served_players: List[Player], served_players: List[Player]) -> Player:
+        current_player = un_served_players.pop(0)
+        served_players.append(current_player)
+        return current_player
 
     def player_decide_what_to_do(self, player: Player, no_raises: int) -> int:
         if isinstance(player, AIPlayer):
@@ -79,7 +79,7 @@ class Game:
             print("2. Call")
             print("3. Check")
             print("4. Raise")
-            to_call_amount = self._game_table.current_rate - player._in_game_chips
+            to_call_amount = self._game_table.current_rate - player.in_game_chips
             print(f"To Call You have to put at least {to_call_amount}")
             choice = int(input("Decide What to do: "))
         if choice == 1:
@@ -175,12 +175,14 @@ class Game:
         raise_made = True
         encirlcment = 0
         no_raises = 0
+        un_served_players = self._players_in_game[:]
+        served_players = []
         while (raise_made):
             raise_made = False
-            for index, player in enumerate(self._players_in_game):
-                current_player = self.get_current_player()
+            while un_served_players:
+                current_player = self.get_player_and_move_to_served(un_served_players, served_players)
                 print(30 * "-")
-                if current_round == 1 and index < 3 and not encirlcment:
+                if current_round == 1 and current_player.player_num < 4 and not encirlcment:
                     #  During First Round and first encirlcment
                     #  small and big blind players have already bet
                     print(current_player.name)
@@ -190,6 +192,7 @@ class Game:
 
                 if current_player.is_active:
                     if not isinstance(current_player, AIPlayer):
+                        print("It's Your Turn!")
                         print(self._game_table)
 
                     print(current_player)
@@ -210,6 +213,8 @@ class Game:
                     print(f"{current_player} - NOT ACTIVE")
 
             encirlcment += 1
+            un_served_players, served_players = served_players, un_served_players  # Sugested swap
+            served_players.clear()
 
             if self.check_one_player_left():
                 break

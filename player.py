@@ -200,12 +200,8 @@ class AIPlayer(Player):
             return 1  # FOLD
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
-        frequent_raises = no_current_round_raises > 3
-        print(f"Number of raises in current round: {no_current_round_raises}")
+        frequent_raises = no_current_round_raises > 2
         can_raise = self._chips + self._in_game_chips > game_table.current_rate
-        if can_raise:
-            print(f"To Call Player Has to put at least: {game_table.current_rate - self._in_game_chips}")
-            print(f"Can Raise Becouse: {self._chips} + {self._in_game_chips} > {game_table.current_rate}")
 
         can_call = self._chips + self._in_game_chips >= game_table.current_rate
         can_check = self._in_game_chips == game_table.current_rate
@@ -230,7 +226,7 @@ class AIPlayer(Player):
             if can_call and self._in_game_chips < game_table.current_rate:
                 return 2
 
-        if random.random() < bluff_chance and can_raise:
+        if random.random() < bluff_chance and can_raise and not frequent_raises:
             return 4  # RAISE (blef)
 
         if cards_on_the_table == 3 or cards_on_the_table == 4:
@@ -246,7 +242,7 @@ class AIPlayer(Player):
         to_call = game_table.current_rate - self._in_game_chips
 
         if hand_strength >= 4:
-            to_raise = (game_table.stake // 2)
+            to_raise = (game_table.stake // 3)
 
         else:
             to_raise = (game_table.stake // 4)
@@ -261,4 +257,5 @@ class AIPlayer(Player):
         desc = ""
         desc += (f"{self._name}")
         desc += f"\nAll Player Chips: {self._chips}\n"
+        desc += f"\nPlayer In-Game Chips: {self._in_game_chips}\n"
         return desc
