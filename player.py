@@ -85,10 +85,7 @@ class Player:
         all_cards_values = [card.rank.value[0] for card in all_cards]
 
         for i in range(len(all_cards_values) - 4):
-            if all_cards_values[i] + 1 == all_cards_values[i + 1] and \
-                all_cards_values[i + 1] + 1 == all_cards_values[i + 2] and \
-                all_cards_values[i + 2] + 1 == all_cards_values[i + 3] and \
-                    all_cards_values[i + 3] + 1 == all_cards_values[i + 4]:
+            if all_cards_values[i: i + 5] == list(range(all_cards_values[i], all_cards_values[i] + 5)):
                 straight = True
 
         last_card = all_cards_values[-1]
