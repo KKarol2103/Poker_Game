@@ -1,7 +1,7 @@
 from card import Card, Color, Value
 from table import Table
 from player import Player
-from poker_errors import NotEnoughChipsToPlayError, TooLowRaiseError
+from poker_errors import NotEnoughChipsToPlayError
 import pytest
 
 
@@ -164,28 +164,61 @@ def test_compute_player_score_three_pairs():
 def test_player_makes_raise_2():
     player = Player(chips=1000)
     table = Table()
+    player.in_game_chips = 250
+    table.current_rate = 300
+    table.stake = 600
     raise_amount = 300
-    table.current_rate = 200
-    table.stake = 300
 
     player.make_raise(table, raise_amount)
 
-    assert table.current_rate == 300
-    assert table.stake == 600
+    assert table.current_rate == 600
+    assert table.stake == 600 + 350
 
-    assert player._chips == 700
-    assert player._in_game_chips == 300
+    assert player._chips == 1000 - 350
+    assert player._in_game_chips == 250 + 50 + 300
 
 
-def test_player_makes_raise_but_ammount_is_too_low():
-    player = Player(chips=1000)
+def test_player_make_raise_3():
+    player = Player(chips=500)
     table = Table()
-    raise_amount = 29
-    table.current_rate = 40
+    table.current_rate = 50
     table.stake = 100
+    player._in_game_chips = 25
 
-    with pytest.raises(TooLowRaiseError):
-        player.make_raise(table, raise_amount)
+    player.make_raise(table, 75)
+
+    assert table.current_rate == 125
+    assert table.stake == 200
+    assert player._chips == 400
+    assert player._in_game_chips == 125
+
+
+def test_player_make_raise_4():
+    player = Player(chips=420)
+    table = Table()
+    table.current_rate = 379 + 123
+    table.stake = 1339
+    player._in_game_chips = 30
+
+    with pytest.raises(NotEnoughChipsToPlayError):
+        player.make_raise(table, 334)
+
+    # assert table.current_rate == 125
+    # assert table.stake == 200
+    # assert player._chips == 400
+    # assert player._in_game_chips == 125
+
+
+# def test_player_makes_raise_but_ammount_is_too_low():
+#     player = Player(chips=348)
+#     table = Table()
+#     player.in_game_chips = 102
+#     raise_amount = 1
+#     table.current_rate = 331
+#     table.stake = 2521
+
+#     with pytest.raises(TooLowRaiseError):
+#         player.make_raise(table, raise_amount)
 
 
 def test_raise_with_insufficient_chips():
@@ -208,11 +241,11 @@ def test_player_makes_raise_when_current_rate_bigger_than_in_game_chips():
 
     player.make_raise(table, raise_amount)
 
-    assert table.current_rate == 24
-    assert table.stake == 64
+    assert table.current_rate == 32
+    assert table.stake == 48 + 24
 
-    assert player._chips == 544
-    assert player._in_game_chips == 24
+    assert player._chips == 560 - 24
+    assert player._in_game_chips == 32
 
 
 def test_player_makes_raise_with_insufficient_chips():

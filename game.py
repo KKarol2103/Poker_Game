@@ -79,6 +79,8 @@ class Game:
             print("2. Call")
             print("3. Check")
             print("4. Raise")
+            to_call_amount = self._game_table.current_rate - player._in_game_chips
+            print(f"To Call You have to put at least {to_call_amount}")
             choice = int(input("Decide What to do: "))
         if choice == 1:
             if self.check_one_player_left() == 1:
@@ -156,7 +158,8 @@ class Game:
                 continue
             except SinglePlayerWantsToFoldError:
                 print("It is not possible for one player to fold")
-                continue
+                choice = 2
+                break
             decided = True
         return choice
 
@@ -191,8 +194,6 @@ class Game:
 
                     print(current_player)
 
-                    # print(30 * "-")
-
                     choice = self.get_player_decision(current_player, no_raises)
 
                     if choice == 4:
@@ -203,8 +204,11 @@ class Game:
                         self._players_in_game.sort(key=lambda player: player.player_num)
                         raise_made = False
                         break
-
                     time.sleep(3)
+
+                else:
+                    print(f"{current_player} - NOT ACTIVE")
+
             encirlcment += 1
 
             if self.check_one_player_left():

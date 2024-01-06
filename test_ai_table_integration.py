@@ -34,7 +34,7 @@ def test_aiplayer_how_much_to_raise_stake_bigger_than_chips():
     game_table.current_rate = 100
     game_table.stake = 250
     ai_player._in_game_chips = 100
-    assert ai_player.decide_how_much_to_raise(4, game_table) == 100
+    assert ai_player.decide_how_much_to_raise(4, game_table) == 1
 
 
 def test_aiplayer_how_much_to_raise_medium_hand():
@@ -118,4 +118,4 @@ def test_ai_player_how_much_to_raise():
     game_table.current_rate = 250
     game_table.stake = 400
     how_much = ai_player.decide_how_much_to_raise(4, game_table)
-    assert how_much == 350
+    assert how_much == 200

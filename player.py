@@ -1,6 +1,6 @@
 from table import Table
 from card import Card, Value
-from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError, TooLowRaiseError
+from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError
 from typing import List
 import random
 
@@ -157,15 +157,20 @@ class Player:
         game_table.stake += needs_to_put
 
     def make_raise(self, game_table: Table, amount: int) -> None:
-        if self._chips - amount < 0:
+        to_call = game_table.current_rate - self._in_game_chips
+        total_amount = to_call + amount
+
+        # if game_table.current_rate + total_amount < game_table.current_rate:
+        #     raise TooLowRaiseError
+
+        if self._chips - total_amount < 0:
             raise NotEnoughChipsToPlayError
-        if amount < game_table.current_rate:
-            raise TooLowRaiseError
-        self._in_game_chips += amount
-        self._chips -= amount
+
+        self._in_game_chips += total_amount
+        self._chips -= total_amount
 
         game_table.current_rate = self._in_game_chips
-        game_table.stake += amount
+        game_table.stake += total_amount
 
     def check(self, game_table: Table) -> None:
         if game_table.current_rate != self._in_game_chips:
@@ -192,12 +197,16 @@ class AIPlayer(Player):
 
     def decide_what_to_do(self, game_table: Table, no_current_round_raises: int) -> int:
         if self._chips + self._in_game_chips < game_table.current_rate:
-            print("Ends up Here!\n")
             return 1  # FOLD
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
         frequent_raises = no_current_round_raises > 3
+        print(f"Number of raises in current round: {no_current_round_raises}")
         can_raise = self._chips + self._in_game_chips > game_table.current_rate
+        if can_raise:
+            print(f"To Call Player Has to put at least: {game_table.current_rate - self._in_game_chips}")
+            print(f"Can Raise Becouse: {self._chips} + {self._in_game_chips} > {game_table.current_rate}")
+
         can_call = self._chips + self._in_game_chips >= game_table.current_rate
         can_check = self._in_game_chips == game_table.current_rate
         strong_hand = 2  # Good Situation - double pair
@@ -235,14 +244,16 @@ class AIPlayer(Player):
     def decide_how_much_to_raise(self, hand_strength: int, game_table: Table) -> int:
         to_raise = 0
         to_call = game_table.current_rate - self._in_game_chips
+
         if hand_strength >= 4:
-            to_raise = (to_call + game_table.stake // 2)
-            print(f"Strong Hand Wants to Rise by {to_raise}")
+            to_raise = (game_table.stake // 2)
 
         else:
-            to_raise = to_call + (game_table.stake // 4)
+            to_raise = (game_table.stake // 4)
 
-        print(f"to raise: {to_raise} chips: {self._chips}")
+        total_amount = to_call + to_raise
+        if self._chips - total_amount < 0:
+            return 1
 
         return min(to_raise, self._chips)
 
