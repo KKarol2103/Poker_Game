@@ -45,14 +45,12 @@ def test_get_current_player():
     normal_player = Player("Gracz")
     first_ai_player = AIPlayer()
     second_ai_player = AIPlayer()
-    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+    unserved_players = [normal_player, first_ai_player, second_ai_player]
+    served_players = []
 
-    game.get_current_player()
-    assert game.players_in_game == [first_ai_player, second_ai_player, normal_player]
-    game.get_current_player()
-    assert game.players_in_game == [second_ai_player, normal_player, first_ai_player]
-    game.get_current_player()
-    assert game.players_in_game == [normal_player, first_ai_player, second_ai_player]
+    game.get_player_and_move_to_served(unserved_players, served_players)
+    assert unserved_players == [first_ai_player, second_ai_player]
+    assert served_players == [normal_player]
 
 
 def test_player_call():

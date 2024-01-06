@@ -128,8 +128,8 @@ class Game:
         dealer = self._players_in_game[0]
         small_blind_player = self._players_in_game[1]
         big_blind_player = self._players_in_game[2]
-        small_blind_player.make_raise(self._game_table, 10)
-        big_blind_player.make_raise(self._game_table, 20)
+        small_blind_player.make_raise(self._game_table, 1)
+        big_blind_player.make_raise(self._game_table, 2)
         dealer.name += " D "
         small_blind_player.name += " SB "
         big_blind_player.name += " BB "
@@ -167,8 +167,8 @@ class Game:
         last_raiser = None
         if current_round == 1:
             small_blind, big_blind = self.assign_blinds_bets()
-            print(f"Small Blind Player - {small_blind.name} Raises by: 10")
-            print(f"Big Blind Player - {big_blind.name} Raises by: 20")
+            print(f"Small Blind Player - {small_blind.name} Raises by: 1")
+            print(f"Big Blind Player - {big_blind.name} Raises by: 2")
             last_raiser = big_blind
             time.sleep(3)
 
@@ -280,12 +280,3 @@ class Game:
                 self.reset_players()
             print(" ")
         print("See You Soon!")
-
-
-def main():
-    my_new_game = Game()
-    my_new_game.play()
-
-
-if __name__ == "__main__":
-    main()
