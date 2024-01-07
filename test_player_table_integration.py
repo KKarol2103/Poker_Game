@@ -203,23 +203,6 @@ def test_player_make_raise_4():
     with pytest.raises(NotEnoughChipsToPlayError):
         player.make_raise(table, 334)
 
-    # assert table.current_rate == 125
-    # assert table.stake == 200
-    # assert player._chips == 400
-    # assert player._in_game_chips == 125
-
-
-# def test_player_makes_raise_but_ammount_is_too_low():
-#     player = Player(chips=348)
-#     table = Table()
-#     player.in_game_chips = 102
-#     raise_amount = 1
-#     table.current_rate = 331
-#     table.stake = 2521
-
-#     with pytest.raises(TooLowRaiseError):
-#         player.make_raise(table, raise_amount)
-
 
 def test_raise_with_insufficient_chips():
     player = Player(chips=30)

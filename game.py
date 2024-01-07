@@ -3,7 +3,7 @@ from table import Table
 from deck import Deck
 from poker_errors import (SinglePlayerWantsToFoldError, InvalidActionError,
                           NotEnoughChipsToPlayError, InvalidAmountCheckError,
-                          InvalidInputData, TooLowRaiseError, InvalidRoundError)
+                          InvalidInputData, InvalidRoundError)
 from typing import List, Tuple
 import random
 import time
@@ -129,7 +129,7 @@ class Game:
         small_blind_player = self._players_in_game[1]
         big_blind_player = self._players_in_game[2]
         small_blind_player.make_raise(self._game_table, 1)
-        big_blind_player.make_raise(self._game_table, 2)
+        big_blind_player.make_raise(self._game_table, 1)
         dealer.name += " D "
         small_blind_player.name += " SB "
         big_blind_player.name += " BB "
@@ -141,15 +141,11 @@ class Game:
         while (not decided):
             try:
                 choice = self.player_decide_what_to_do(player, no_raises)
-            except InvalidActionError:
+            except (InvalidActionError, ValueError):
                 print("\nInvalid Option! Try Again\n")
                 continue
             except InvalidAmountCheckError:
                 print("To check your in_game chips must be equal to current rate!")
-                print("Try Again")
-                continue
-            except TooLowRaiseError:
-                print("Too low raise amount. It has to be equal or bigger than current rate!")
                 print("Try Again")
                 continue
             except NotEnoughChipsToPlayError:
@@ -167,8 +163,8 @@ class Game:
         last_raiser = None
         if current_round == 1:
             small_blind, big_blind = self.assign_blinds_bets()
-            print(f"Small Blind Player - {small_blind.name} Raises by: 1")
-            print(f"Big Blind Player - {big_blind.name} Raises by: 2")
+            print(f"Small Blind Player - {small_blind.name} sets small blind value to: 1")
+            print(f"Big Blind Player - {big_blind.name} sets big blind value to: 2")
             last_raiser = big_blind
             time.sleep(3)
 
@@ -204,7 +200,6 @@ class Game:
                         no_raises += 1
                         raise_made = True
                     elif last_raiser == current_player:
-                        self._players_in_game.sort(key=lambda player: player.player_num)
                         raise_made = False
                         break
                     time.sleep(3)
@@ -213,7 +208,7 @@ class Game:
                     print(f"{current_player} - NOT ACTIVE")
 
             encirlcment += 1
-            un_served_players, served_players = served_players, un_served_players  # Sugested swap
+            un_served_players, served_players = served_players, un_served_players
             served_players.clear()
 
             if self.check_one_player_left():

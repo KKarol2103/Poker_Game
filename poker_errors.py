@@ -8,11 +8,6 @@ class NotEnoughChipsToPlayError(Exception):
         super().__init__("Not enough chips to play!")
 
 
-class TooLowRaiseError(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__("Minimal raise must be bigger than last raise")
-
-
 class InvalidActionError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__("Invalid Option!")

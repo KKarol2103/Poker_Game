@@ -157,9 +157,6 @@ class Player:
         to_call = game_table.current_rate - self._in_game_chips
         total_amount = to_call + amount
 
-        # if game_table.current_rate + total_amount < game_table.current_rate:
-        #     raise TooLowRaiseError
-
         if self._chips - total_amount < 0:
             raise NotEnoughChipsToPlayError
 
