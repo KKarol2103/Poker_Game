@@ -1,6 +1,7 @@
 # PIPR 23Z Gra Konsolowa W Pokera
 
-## Karol Kuc Wydział Elektroniki i Technik Informacyjnych
+## Karol Kuc
+## Wydział Elektroniki i Technik Informacyjnych
 
 ## Treść Zadania:
 Celem projektu jest zaimplementowanie gry w pokera w odmianie Texas Hold'em.
