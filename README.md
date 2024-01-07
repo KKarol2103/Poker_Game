@@ -41,6 +41,9 @@ W mojej realizacji projektu postanowiłem położyć duży nacisk na programowan
     - Zawiera informacje jakie karty aktualnie znajdują się na stole, całkowitą pulę w obecnej grze - tu nazwaną stake a także obecną stawkę - current rate która jest bardzo ważna przy przeprowadzaniu rozgrywki gdyż na koniec kazdej rundy licytacji gracz musi do tej stawki wyrównać.
     - Jest to także metoda bardzo przydatna przy wyświetlaniu na ekranie użytkownika aktualnego stanu gry.
 
+## Diagram Architektury Projektu
+![Diagram UML](PokerGameDiag.png)
+
 ## Rozpoczęcie Rozgrywki:
 1. Najpierw konieczne jest stworzenie instancji klasy game - na której wywołujemy metodę odpowiadającą za rozpoczęcie gry (play). W repozytorium znajduje się już plik play_game.py który robi to za nas.
 2. Użytkownik podaje liczbę graczy uczestniczących w grze a także liczbę żetonów jaką każdy z graczy ma początkowo dostać- standardowe input.
