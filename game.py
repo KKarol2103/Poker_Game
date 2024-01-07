@@ -56,14 +56,15 @@ class Game:
 
         self._players_in_game.sort(key=lambda player: player.player_num)
 
-    def get_winner(self) -> Tuple[Player, int]:
+    def get_winner(self) -> Tuple[List[Player], int]:
         score_dict = {}
         for player in self._players_in_game:
             if player.is_active:
                 player_score = player.compute_player_score(self._game_table)
                 score_dict[player] = player_score
-        player_with_max_score = max(score_dict, key=score_dict.get)
-        return player_with_max_score, score_dict[player_with_max_score]
+        max_score = max(score_dict.values())
+        winners = [player for player, score in score_dict.items() if score == max_score]
+        return winners, max_score
 
     def get_player_and_move_to_served(self, un_served_players: List[Player], served_players: List[Player]) -> Player:
         current_player = un_served_players.pop(0)
@@ -109,6 +110,12 @@ class Game:
     def deal_the_cards(self) -> None:
         for player in self._players_in_game:
             player.hole_cards = self._game_deck.draw_player_hole_cards()
+
+    def split_prize(self, winners_of_game: List[Player], reward: int) -> None:
+        no_winners = len(winners_of_game)
+        reward_for_single_player = reward // no_winners
+        for player in winners_of_game:
+            player.chips += reward_for_single_player
 
     def reset_players(self) -> None:
         for index, player in enumerate(self._players_in_game):
@@ -259,12 +266,20 @@ class Game:
 
             print("Time to showdown!")
             time.sleep(2)
-            winner, score = self.get_winner()
-            print('And the winner is: ...')
-            time.sleep(3)
-            print(winner)
-            print(f"With score: {score}")
-            winner.chips += self._game_table.stake
+            winners, score = self.get_winner()
+            if len(winners) == 1:
+                winner = winners[0]
+                print('And the winner is: ...')
+                time.sleep(3)
+                print(winner)
+                print(f"With score: {score}")
+                winner.chips += self._game_table.stake
+            else:
+                print("Draw! There is more than one winner!")
+                print("The Winners are: ")
+                for winner in winners:
+                    print(winner)
+                self.split_prize(winners, self._game_table.stake)
             print(f"Your chips after game : {new_player.chips}")
             decision = input("Would You Like to Play Again? [Y/N]: ")
             if decision == "N":

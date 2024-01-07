@@ -21,13 +21,13 @@ def test_draw_the_order_of_players(monkeypatch):
 
 
 def mock_compute_player_score(self, table):
-    if isinstance(self, Player):
-        return 6
-    else:
+    if isinstance(self, AIPlayer):
         return 4
+    else:
+        return 6
 
 
-def test_get_winer(monkeypatch):
+def test_get_winner(monkeypatch):
     game = Game()
     monkeypatch.setattr(Player, "compute_player_score", mock_compute_player_score)
     monkeypatch.setattr(AIPlayer, "compute_player_score", mock_compute_player_score)
@@ -36,8 +36,49 @@ def test_get_winer(monkeypatch):
     second_ai_player = AIPlayer()
     game.players_in_game = [normal_player, first_ai_player, second_ai_player]
     winner, score = game.get_winner()
-    assert winner.name == "Gracz"
+    assert len(winner) == 1
+    assert winner[0].name == "Gracz"
     assert score == 6
+
+
+def mock_same_results(self, table):
+    return 4
+
+
+def test_get_winner_more_than_one_player(monkeypatch):
+    game = Game()
+    monkeypatch.setattr(Player, "compute_player_score", mock_same_results)
+    monkeypatch.setattr(AIPlayer, "compute_player_score", mock_same_results)
+    normal_player = Player("Gracz")
+    first_ai_player = AIPlayer()
+    second_ai_player = AIPlayer()
+    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+    winners, score = game.get_winner()
+    assert len(winners) == 3
+    assert winners[0].name == "Gracz"
+    assert score == 4
+
+
+def test_split_prize():
+    game = Game()
+    normal_player = Player("Gracz")
+    first_ai_player = AIPlayer()
+    second_ai_player = AIPlayer()
+    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+    game.split_prize(game.players_in_game, 3000)
+    for player in game.players_in_game:
+        assert player.chips == 1000
+
+
+def test_split_prize2():
+    game = Game()
+    normal_player = Player("Gracz")
+    normal_player.chips = 1200
+    first_ai_player = AIPlayer()
+    second_ai_player = AIPlayer()
+    game.players_in_game = [normal_player, first_ai_player, second_ai_player]
+    game.split_prize(game.players_in_game, 3000)
+    assert normal_player.chips == 2200
 
 
 def test_get_current_player():
