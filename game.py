@@ -3,7 +3,7 @@ from table import Table
 from deck import Deck
 from poker_errors import (SinglePlayerWantsToFoldError, InvalidActionError,
                           NotEnoughChipsToPlayError, InvalidAmountCheckError,
-                          InvalidInputData, TooLowRaiseError)
+                          InvalidInputData, InvalidRoundError)
 from typing import List, Tuple
 import random
 import time
@@ -14,7 +14,6 @@ class Game:
         self._players_in_game: List[Player] = []
         self._game_deck = Deck()
         self._game_table = Table()
-        self._round: int = 1
 
     @property
     def players_in_game(self) -> List[Player]:
@@ -24,24 +23,16 @@ class Game:
     def players_in_game(self, value):
         self._players_in_game = value
 
-    @property
-    def round(self) -> int:
-        return self._round
-
-    @round.setter
-    def round(self, value):
-        self._round = value
-
-    def get_current_round_name(self) -> str:
-        if self._round == 1:
+    def get_round_name(self, current_round: int) -> str:
+        if current_round == 1:
             return "Pre-Flop"
-        if self._round == 2:
+        if current_round == 2:
             return "Flop"
-        if self._round == 3:
+        if current_round == 3:
             return "Turn"
-        if self._round == 4:
+        if current_round == 4:
             return "River"
-        raise ValueError("Incorrect round number")
+        raise InvalidRoundError
 
     def get_basic_user_data(self) -> Tuple[str, int]:
         player_name = input("Please enter your name: ")
@@ -65,29 +56,32 @@ class Game:
 
         self._players_in_game.sort(key=lambda player: player.player_num)
 
-    def get_winner(self) -> Tuple[Player, int]:
+    def get_winner(self) -> Tuple[List[Player], int]:
         score_dict = {}
         for player in self._players_in_game:
             if player.is_active:
                 player_score = player.compute_player_score(self._game_table)
                 score_dict[player] = player_score
-        player_with_max_score = max(score_dict, key=score_dict.get)
-        return player_with_max_score, score_dict[player_with_max_score]
+        max_score = max(score_dict.values())
+        winners = [player for player, score in score_dict.items() if score == max_score]
+        return winners, max_score
 
-    def get_current_player(self) -> Player:
-        player = self._players_in_game.pop(0)
-        self._players_in_game.append(player)
-        return player
+    def get_player_and_move_to_served(self, un_served_players: List[Player], served_players: List[Player]) -> Player:
+        current_player = un_served_players.pop(0)
+        served_players.append(current_player)
+        return current_player
 
-    def player_decide_what_to_do(self, player: Player) -> int:
+    def player_decide_what_to_do(self, player: Player, no_raises: int) -> int:
         if isinstance(player, AIPlayer):
-            choice = player.decide_what_to_do(self._game_table)
+            choice = player.decide_what_to_do(self._game_table, no_raises)
         else:
             print("Options:")
             print("1. Fold")
             print("2. Call")
             print("3. Check")
             print("4. Raise")
+            to_call_amount = self._game_table.current_rate - player.in_game_chips
+            print(f"To Call You have to put at least {to_call_amount}")
             choice = int(input("Decide What to do: "))
         if choice == 1:
             if self.check_one_player_left() == 1:
@@ -117,6 +111,12 @@ class Game:
         for player in self._players_in_game:
             player.hole_cards = self._game_deck.draw_player_hole_cards()
 
+    def split_prize(self, winners_of_game: List[Player], reward: int) -> None:
+        no_winners = len(winners_of_game)
+        reward_for_single_player = reward // no_winners
+        for player in winners_of_game:
+            player.chips += reward_for_single_player
+
     def reset_players(self) -> None:
         for index, player in enumerate(self._players_in_game):
             player.is_active = True
@@ -135,81 +135,88 @@ class Game:
         dealer = self._players_in_game[0]
         small_blind_player = self._players_in_game[1]
         big_blind_player = self._players_in_game[2]
-        small_blind_player.make_raise(self._game_table, 10)
-        big_blind_player.make_raise(self._game_table, 20)
+        small_blind_player.make_raise(self._game_table, 1)
+        big_blind_player.make_raise(self._game_table, 1)
         dealer.name += " D "
         small_blind_player.name += " SB "
         big_blind_player.name += " BB "
 
         return small_blind_player, big_blind_player
 
-    def conduct_betting_round(self) -> None:
+    def get_player_decision(self, player: Player, no_raises: int) -> int:
+        decided = False
+        while (not decided):
+            try:
+                choice = self.player_decide_what_to_do(player, no_raises)
+            except (InvalidActionError, ValueError):
+                print("\nInvalid Option! Try Again\n")
+                continue
+            except InvalidAmountCheckError:
+                print("To check your in_game chips must be equal to current rate!")
+                print("Try Again")
+                continue
+            except NotEnoughChipsToPlayError:
+                print("You don't have enough chips to do that!")
+                print("Choose other Action")
+                continue
+            except SinglePlayerWantsToFoldError:
+                print("It is not possible for one player to fold")
+                choice = 2
+                break
+            decided = True
+        return choice
+
+    def conduct_betting_round(self, current_round: int) -> None:
         last_raiser = None
-        if self._round == 1:
+        if current_round == 1:
             small_blind, big_blind = self.assign_blinds_bets()
-            print(f"Small Blind Player - {small_blind.name} Raises by: 10")
-            print(f"Big Blind Player - {big_blind.name} Raises by: 20")
+            print(f"Small Blind Player - {small_blind.name} sets small blind value to: 1")
+            print(f"Big Blind Player - {big_blind.name} sets big blind value to: 2")
             last_raiser = big_blind
             time.sleep(3)
 
         raise_made = True
         encirlcment = 0
+        no_raises = 0
+        un_served_players = self._players_in_game[:]
+        served_players = []
         while (raise_made):
             raise_made = False
-            for index, player in enumerate(self._players_in_game):
-                current_player = self.get_current_player()
+            while un_served_players:
+                current_player = self.get_player_and_move_to_served(un_served_players, served_players)
                 print(30 * "-")
-                #  TODO change it here
-                print(current_player.name)
-                print(current_player.chips)
-                if self._round == 1 and index < 3 and not encirlcment:
+                if current_round == 1 and current_player.player_num < 4 and not encirlcment:
+                    #  During First Round and first encirlcment
+                    #  small and big blind players have already bet
+                    print(current_player.name)
+                    time.sleep(3)
                     raise_made = True
                     continue
 
                 if current_player.is_active:
-                    if isinstance(current_player, AIPlayer):
-                        print("AI thinks...")
-                    else:
-                        print(30 * "-")
+                    if not isinstance(current_player, AIPlayer):
+                        print("It's Your Turn!")
                         print(self._game_table)
-                        print("Your Cards: ")
-                        current_player.show_player_hole_cards()
-                        print(f"Your in game chips: {current_player.in_game_chips}")
 
-                    decided = False
-                    while (not decided):
-                        try:
-                            choice = self.player_decide_what_to_do(current_player)
-                        except InvalidActionError:
-                            print("\nInvalid Option! Try Again\n")
-                            continue
-                        except InvalidAmountCheckError:
-                            print("To check your in_game chips must be equal to current rate!")
-                            print("Try Again")
-                            continue
-                        except TooLowRaiseError:
-                            print("Too low raise amount. It has to be equal or bigger than current rate!")
-                            print("Try Again")
-                            continue
-                        except NotEnoughChipsToPlayError:
-                            print("You don't have enough chips to do that!")
-                            print("Choose other Action")
-                            continue
-                        except SinglePlayerWantsToFoldError:
-                            print("It is not possible for one player to fold")
-                        decided = True
-                    print(30 * "-")
+                    print(current_player)
+
+                    choice = self.get_player_decision(current_player, no_raises)
 
                     if choice == 4:
                         last_raiser = current_player
+                        no_raises += 1
                         raise_made = True
                     elif last_raiser == current_player:
-                        self._players_in_game.sort(key=lambda player: player.player_num)
                         raise_made = False
                         break
-
                     time.sleep(3)
+
+                else:
+                    print(f"{current_player} - NOT ACTIVE")
+
             encirlcment += 1
+            un_served_players, served_players = served_players, un_served_players
+            served_players.clear()
 
             if self.check_one_player_left():
                 break
@@ -237,53 +244,49 @@ class Game:
             self.draw_the_order_of_players()
             self.deal_the_cards()
             print("Your Cards: ")
-            # TODO change it here to str
-            new_player.show_player_hole_cards()
+            print(new_player.player_hole_cards_desc())
+            round = 0
 
-            for self._round in range(1, 5):
-                print(f'Round: {self.get_current_round_name()}')
+            for round in range(1, 5):
+                print(f'Round: {self.get_round_name(round)}')
                 only_one_left = self.check_one_player_left()
                 if only_one_left:
                     print("Only One Player Left")
                     break
                 print(30 * "-")
                 time.sleep(3)
-                self._game_deck.put_cards_on_the_table(self._round, self._game_table)
+                self._game_deck.put_cards_on_the_table(round, self._game_table)
                 print(self._game_table)
                 print("Now it is time for everyone to decide what to do!")
                 print(30 * "-")
                 time.sleep(3)
                 print("Current Player: ")
                 time.sleep(1)
-                self.conduct_betting_round()
+                self.conduct_betting_round(round)
 
             print("Time to showdown!")
             time.sleep(2)
-            winner, score = self.get_winner()
-            print('And the winner is: ...')
-            time.sleep(3)
-            print(f"{winner.name} ! with result {score}")
-            print("His Cards Were: ")
-            time.sleep(1)
-            winner.show_player_hole_cards()
-            winner.chips += self._game_table.stake
-            print(f"Your current chips status: {new_player.chips}")
+            winners, score = self.get_winner()
+            if len(winners) == 1:
+                winner = winners[0]
+                print('And the winner is: ...')
+                time.sleep(3)
+                print(winner)
+                print(f"With score: {score}")
+                winner.chips += self._game_table.stake
+            else:
+                print("Draw! There is more than one winner!")
+                print("The Winners are: ")
+                for winner in winners:
+                    print(winner)
+                self.split_prize(winners, self._game_table.stake)
+            print(f"Your chips after game : {new_player.chips}")
             decision = input("Would You Like to Play Again? [Y/N]: ")
             if decision == "N":
                 running = False
             else:
                 self._game_deck = Deck()
                 self._game_table = Table()
-                self._round: int = 1
                 self.reset_players()
             print(" ")
         print("See You Soon!")
-
-
-def main():
-    my_new_game = Game()
-    my_new_game.play()
-
-
-if __name__ == "__main__":
-    main()

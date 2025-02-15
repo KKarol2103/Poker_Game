@@ -1,6 +1,6 @@
 from table import Table
 from card import Card, Value
-from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError, TooLowRaiseError
+from poker_errors import NotEnoughChipsToPlayError, InvalidAmountCheckError
 from typing import List
 import random
 
@@ -85,10 +85,7 @@ class Player:
         all_cards_values = [card.rank.value[0] for card in all_cards]
 
         for i in range(len(all_cards_values) - 4):
-            if all_cards_values[i] + 1 == all_cards_values[i + 1] and \
-                all_cards_values[i + 1] + 1 == all_cards_values[i + 2] and \
-                all_cards_values[i + 2] + 1 == all_cards_values[i + 3] and \
-                    all_cards_values[i + 3] + 1 == all_cards_values[i + 4]:
+            if all_cards_values[i: i + 5] == list(range(all_cards_values[i], all_cards_values[i] + 5)):
                 straight = True
 
         last_card = all_cards_values[-1]
@@ -157,48 +154,57 @@ class Player:
         game_table.stake += needs_to_put
 
     def make_raise(self, game_table: Table, amount: int) -> None:
-        if self._chips - amount < 0:
+        to_call = game_table.current_rate - self._in_game_chips
+        total_amount = to_call + amount
+
+        if self._chips - total_amount < 0:
             raise NotEnoughChipsToPlayError
-        if amount < game_table.current_rate:
-            raise TooLowRaiseError
-        self._in_game_chips += amount
-        self._chips -= amount
+
+        self._in_game_chips += total_amount
+        self._chips -= total_amount
 
         game_table.current_rate = self._in_game_chips
-        game_table.stake += amount
+        game_table.stake += total_amount
 
     def check(self, game_table: Table) -> None:
         if game_table.current_rate != self._in_game_chips:
             raise InvalidAmountCheckError
 
-    def show_player_hole_cards(self) -> str:
+    def player_hole_cards_desc(self) -> str:
         cards = ""
         for card in self._hole_cards:
             cards += str(card)
             cards += " "
-        print(cards)
         return cards
 
     def __str__(self) -> str:
-        pass
+        desc = ""
+        desc += (f"{self._name}\n")
+        desc += "Player Hole cards: \n"
+        desc += self.player_hole_cards_desc()
+        desc += f"\nAll Player Chips: {self._chips}\n"
+        desc += f"Player In-Game Chips: {self._in_game_chips}"
+        return desc
 
 
 class AIPlayer(Player):
 
-    def decide_what_to_do(self, game_table: Table) -> int:
-        if self._chips < game_table.current_rate:
+    def decide_what_to_do(self, game_table: Table, no_current_round_raises: int) -> int:
+        if self._chips + self._in_game_chips < game_table.current_rate:
             return 1  # FOLD
         hand_strength = self.compute_player_score(game_table)
         cards_on_the_table = len(game_table.community_cards)
-        can_raise = self._chips > game_table.current_rate
-        can_call = self._chips == game_table.current_rate
+        frequent_raises = no_current_round_raises > 2
+        can_raise = self._chips + self._in_game_chips > game_table.current_rate
+
+        can_call = self._chips + self._in_game_chips >= game_table.current_rate
         can_check = self._in_game_chips == game_table.current_rate
         strong_hand = 2  # Good Situation - double pair
         bluff_chance = 0.2
         #  ROUND 1
         first_round = not cards_on_the_table
         if first_round:
-            if can_raise and hand_strength >= 1 and random.random() < 0.4:
+            if can_raise and hand_strength >= 1 and random.random() < 0.4 and not frequent_raises:
                 return 4  # RAISE
             if can_check:
                 return 3  # CHECK
@@ -207,29 +213,43 @@ class AIPlayer(Player):
         is_strong = hand_strength >= strong_hand
 
         if is_strong:
-            if can_raise and random.random() < 0.7:
+            if can_raise and random.random() < 0.7 and not frequent_raises:
                 return 4
             if can_check:
                 return 3
             if can_call and self._in_game_chips < game_table.current_rate:
                 return 2
 
-        if random.random() < bluff_chance and can_raise:
+        if random.random() < bluff_chance and can_raise and not frequent_raises:
             return 4  # RAISE (blef)
 
-        if cards_on_the_table == 3:
+        if cards_on_the_table == 3 or cards_on_the_table == 4:
             if can_check:
                 return 3  # CHECK
-            return 2  # CALL
+            if can_call:
+                return 2  # CALL
 
         return 1  # FOLD
 
     def decide_how_much_to_raise(self, hand_strength: int, game_table: Table) -> int:
         to_raise = 0
         to_call = game_table.current_rate - self._in_game_chips
+
         if hand_strength >= 4:
-            to_raise = (to_call + int(game_table.stake * 0.8))
+            to_raise = (game_table.stake // 3)
+
         else:
-            to_raise = to_call + (game_table.stake // 4)
+            to_raise = (game_table.stake // 4)
+
+        total_amount = to_call + to_raise
+        if self._chips - total_amount < 0:
+            return 1
 
         return min(to_raise, self._chips)
+
+    def __str__(self) -> str:
+        desc = ""
+        desc += (f"{self._name}")
+        desc += f"\nAll Player Chips: {self._chips}\n"
+        desc += f"\nPlayer In-Game Chips: {self._in_game_chips}\n"
+        return desc
