@@ -46,7 +46,7 @@ W mojej realizacji projektu postanowiłem położyć duży nacisk na programowan
 ![Diagram UML](PokerGameDiag.png)
 
 ## Rozpoczęcie Rozgrywki:
-1. Najpierw konieczne jest stworzenie instancji klasy game - na której wywołujemy metodę odpowiadającą za rozpoczęcie gry (play). W repozytorium znajduje się już plik play_game.py który robi to za nas.
+1. Najpierw konieczne jest stworzenie instancji klasy game - na której wywołujemy metodę odpowiadającą za rozpoczęcie gry (play). W repozytorium znajduje się już plik main.py który robi to za nas.
 2. Użytkownik podaje liczbę graczy uczestniczących w grze a także liczbę żetonów jaką każdy z graczy ma początkowo dostać- standardowe input.
 3. Na podstawie danych tworzone są instancje klasy AIPlayer z którymi gracz będzie grał w pokera.
 4. Potem już rozpoczyna się standardowa rozgrywka w pokera - gra trwa do tego momentu aż:
